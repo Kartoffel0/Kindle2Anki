@@ -9,8 +9,7 @@ This script requires [SudachiPy](https://pypi.org/project/SudachiDict-full/)
 pip install SudachiDict-full
 ```
 This script utilizes [Yomichan dictionaries](https://github.com/FooSoft/yomichan#dictionaries) and [ranked frequency lists](https://drive.google.com/drive/folders/1g1drkFzokc8KNpsPHoRmDJ4OtMTWFuXi)
-
-The script is not compatible with multiple-frequency frequency lists, please use one with only 1 frequency per word
+- The script is not compatible with multiple-frequency frequency lists, please use one with only 1 frequency per word
 
 # Usage
 The first time you run the script you'll have to install your dictionaries and frequency lists, make sure you have all of them in the same folder as the Kindle2Anki.py file
