@@ -36,9 +36,6 @@ historyError = json.load(historyFile3)
 freqListsFile = open("app_files/freqlists.json", encoding="utf-8")
 freqlists = json.load(freqListsFile)
 
-kokugoFile = open("app_files/kokugoEntries.json", encoding="utf-8")
-kokugoEntries = json.load(kokugoFile)
-
 configFile = open("app_files/config.json", encoding="utf-8")
 config = json.load(configFile)
 dict_name = config["dict_Names"]
