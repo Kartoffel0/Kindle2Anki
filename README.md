@@ -15,7 +15,7 @@ The first time you run the script you'll have to install your dictionaries and f
 
 Usage after you finish the first run config:
 - plug your kindle into your computer
-- Grab the vocab.db file manually from your kindle's system folder, or just search for "vocab" , and paste it in the same folder as the Kindle2Anki.py file
+- Grab the vocab.db file manually from your kindle's system folder, just search for "vocab.db", and paste it in the same folder as the Kindle2Anki.py file
 - Run the script
 - Choose the book you want to mine from
 - Choose how many cards you want the script to generate, it doesn't account for the duplicates so the actual number of generated cards probably is lower
