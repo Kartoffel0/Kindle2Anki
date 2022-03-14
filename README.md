@@ -1,7 +1,9 @@
 # Kindle2Anki
-A simple command line script to create ```Word, Reading, Definition, Sentence, Audio``` Anki cards from Kindle's Vocab-Builder's database
+A simple command line script to create ```Word, Reading, Definition, Sentence, Audio``` Anki cards from Kindle's Vocab-Builder```単語帳```
 
 # Requirements
+This script requires you to have Kindle's Vocab-Builder```単語帳``` active
+
 This script requires [SudachiPy](https://pypi.org/project/SudachiDict-full/)
 ```
 pip install SudachiDict-full
@@ -20,7 +22,7 @@ Usage after you finish the first run config:
 - Choose the book you want to mine from
 - Choose how many cards you want the script to generate, it doesn't account for the duplicates so the actual number of generated cards probably is lower
 
-Note that:
+# Note that:
 - The script will only create cards for japanese words
 - The script will not generate duplicate cards
 - The cards are generated automatically, flaws are expected(even more with kindle's shitty text parser)
