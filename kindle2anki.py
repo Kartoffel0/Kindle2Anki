@@ -6,6 +6,7 @@ from sudachipy import dictionary
 import urllib.request
 import re
 import sqlite3
+from collections import deque
 
 """
 If you run into any problems while trying to use this script 
@@ -35,6 +36,9 @@ historyError = json.load(historyFile3)
 
 freqListsFile = open("app_files/freqlists.json", encoding="utf-8")
 freqlists = json.load(freqListsFile)
+
+kokugoFile = open("app_files/kokugoEntries.json", encoding="utf-8")
+kokugoEntries = json.load(kokugoFile)
 
 configFile = open("app_files/config.json", encoding="utf-8")
 config = json.load(configFile)
@@ -226,7 +230,7 @@ dbBooks = cursor3.fetchall()
 
 dict_DBterms = {}
 dict_DBtermsRev = {}
-term_list = []
+term_list = deque()
 dict_DBsource = {}
 dict_DBBooks = {}
 book_list = []
@@ -239,7 +243,7 @@ for i in range(len(dbWords)):
     if dbWords[i][3] == "ja":
         dict_DBterms[dbWords[i][2]] = dbWords[i][0]
         dict_DBtermsRev[dbWords[i][0]] = dbWords[i][2]
-        term_list.append(dbWords[i][2])
+        term_list.appendleft(dbWords[i][2])
 
 for i in range(len(dbSource)):
     try:
