@@ -1,5 +1,5 @@
 # Kindle2Anki
-A simple command line script to create ```Word, Reading, Definition, Sentence, Audio``` Anki cards from Kindle's Vocab-Builder```単語帳```
+A simple Python command line script to create ```Word, Reading, Definition, Sentence, Audio``` Anki cards from Kindle's Vocab-Builder```単語帳```
 
 # Requirements
 This script requires you to have Kindle's Vocab-Builder```単語帳``` active
