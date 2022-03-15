@@ -32,7 +32,7 @@ This script utilizes [Yomichan dictionaries](https://github.com/FooSoft/yomichan
 
 # Installation
 - Download the latest [release](https://github.com/Kartoffel0/Kindle2Anki/releases)
-- Unzip the file
+- extract the file
 
 # Usage
 ### This script uses AnkiConnect, make sure you have Anki running before you run the script
