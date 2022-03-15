@@ -1,6 +1,6 @@
-### Kindle2Anki
+# Kindle2Anki
 
-# Description
+## Description
 A simple script to create Anki cards for Japanse words from Kindle's Vocab-Builder using Yomichan dictionaries
 
 # Features
@@ -10,7 +10,7 @@ A simple script to create Anki cards for Japanse words from Kindle's Vocab-Build
 - The script will only try to create a card for a specific word once, if you delete a faulty card it will not be created again on the next run. As you run the script more times the amount of faulty cards is expected to diminish
 - The script uses your existing anki templates, you can customize the cards look however you want
 
-# Screenshots
+## Screenshots
 <table>
   <tr>
     <td> <img src="Screenshots/Kindle2Anki_running.JPG" width=auto height=auto></td>
@@ -29,6 +29,10 @@ This script requires you to have Kindle's Vocab-Builder(```単語帳```) active
 
 This script utilizes [Yomichan dictionaries](https://github.com/FooSoft/yomichan#dictionaries) and [ranked frequency lists](https://drive.google.com/drive/folders/1g1drkFzokc8KNpsPHoRmDJ4OtMTWFuXi)
 - The script is not compatible with multiple-frequency frequency lists, please use one with only 1 frequency per word
+
+# Installation
+- Download the latest [release](https://github.com/Kartoffel0/Kindle2Anki/releases)
+- Unzip the file
 
 # Usage
 #### This script uses AnkiConnect, make sure you have Anki running before you run the script
