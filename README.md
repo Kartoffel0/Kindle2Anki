@@ -1,7 +1,7 @@
 # Kindle2Anki
 
 ## Description
-A simple script to create Anki cards for Japanse words from Kindle's Vocab-Builder using Yomichan dictionaries
+A simple Python script to create Anki cards for Japanese words from Kindle's Vocab-Builder using Yomichan dictionaries
 
 # Features
 - The script generates a ```Word, Reading, Definition, Sentence, Audio``` Anki card with definitions from how many Yomichan dictionaries you want and audio from JapanesePod
