@@ -28,14 +28,14 @@ This script requires you to have Kindle's Vocab-Builder(```単語帳```) active
 [SudachiPy](https://pypi.org/project/SudachiDict-full/) ```pip install SudachiDict-full```
 
 This script utilizes [Yomichan dictionaries](https://github.com/FooSoft/yomichan#dictionaries) and [ranked frequency lists](https://drive.google.com/drive/folders/1g1drkFzokc8KNpsPHoRmDJ4OtMTWFuXi)
-- The script is not compatible with multiple-frequency frequency lists, please use one with only 1 frequency per word
+### The script is not compatible with multiple-frequency frequency lists, please use one with only 1 frequency per word
 
 # Installation
 - Download the latest [release](https://github.com/Kartoffel0/Kindle2Anki/releases)
 - Unzip the file
 
 # Usage
-#### This script uses AnkiConnect, make sure you have Anki running before you run the script
+### This script uses AnkiConnect, make sure you have Anki running before you run the script
 - plug your kindle into your computer and grab the vocab.db file manually from your kindle's system folder```system/vocabulary/vocab.db```, or by searching for "vocab.db", and paste it in the same folder as the Kindle2Anki.py file
 - Run the script
 
@@ -49,7 +49,7 @@ This script utilizes [Yomichan dictionaries](https://github.com/FooSoft/yomichan
 - Choose how many cards you want the script to generate, it doesn't account for the duplicates so the actual number of generated cards probably is lower
 - Wait for it to finish and when asked enter "OK" to close the script
 
-# Note that:
+## Note that:
 - The script will only create cards for japanese words
 - The script will not generate duplicate cards
 - The cards are generated automatically, flaws are expected(even more with kindle's shitty text parser)
