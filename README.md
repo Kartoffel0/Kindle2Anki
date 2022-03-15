@@ -41,7 +41,6 @@ This script utilizes [Yomichan dictionaries](https://github.com/FooSoft/yomichan
 - Be careful when entering your deck and card info, any mistypes will result in the script not working properly
 #### You will only have to inform this once, on the next run you'll not be asked for the same info again
 
-### After you finish the first run setup
 - Choose the book you want to mine from
 - Choose how many cards you want the script to generate, it doesn't account for the duplicates so the actual number of generated cards probably is lower
 - Wait for it to finish and when asked enter "OK" to close the script
