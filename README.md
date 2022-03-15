@@ -28,14 +28,14 @@ This script requires you to have Kindle's Vocab-Builder(```単語帳```) active
 [SudachiPy](https://pypi.org/project/SudachiDict-full/) ```pip install SudachiDict-full```
 
 This script utilizes [Yomichan dictionaries](https://github.com/FooSoft/yomichan#dictionaries) and [ranked frequency lists](https://drive.google.com/drive/folders/1g1drkFzokc8KNpsPHoRmDJ4OtMTWFuXi)
-### The script is not compatible with multiple-frequency frequency lists, please use one with only 1 frequency per word
+#### The script is not compatible with multiple-frequency frequency lists, please use one with only 1 frequency per word
 
 # Installation
 - Download the latest [release](https://github.com/Kartoffel0/Kindle2Anki/releases)
 - extract the file
 
 # Usage
-### This script uses AnkiConnect, make sure you have Anki running before you run the script
+#### This script uses AnkiConnect, make sure you have Anki running before you run the script
 - plug your kindle into your computer and grab the vocab.db file manually from your kindle's system folder```system/vocabulary/vocab.db```, or by searching for "vocab.db", and paste it in the same folder as the Kindle2Anki.py file
 - Run the script
 
