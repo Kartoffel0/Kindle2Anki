@@ -1,13 +1,13 @@
 # Kindle2Anki
 
 ## Description
-A simple Python script to create Anki cards for Japanese words from Kindle's Vocab-Builder using Yomichan dictionaries
+A simple Python script to create Anki cards for Japanese words from Kindle's Vocab-Builder and Yomichan dictionaries
 
 # Features
 - The script generates a ```Word, Reading, Definition, Sentence, Audio``` Anki card with definitions from how many Yomichan dictionaries you want and audio from JapanesePod
 - You can specify which book you want to generate cards from and set a limit to how many cards the script will create
 - You can specify the maximum frequency rank for the created cards, the script will ignore any words with a rank inferior to that
-- The script will only try to create a card for a specific word once, if you delete a faulty card it will not be created again on the next run. As you run the script more times the amount of faulty cards is expected to diminish
+- The script will only try to create a card for a specific word once, if you delete a faulty card it will not be created again on the next run.
 - The script uses your existing anki templates, you can customize the cards look however you want
 
 ## Screenshots
@@ -36,7 +36,7 @@ This script utilizes [Yomichan dictionaries](https://github.com/FooSoft/yomichan
 
 # Usage
 #### This script uses AnkiConnect, make sure you have Anki running before you run the script
-- plug your kindle into your computer and grab the vocab.db file manually from your kindle's system folder ```system/vocabulary/vocab.db```, or by searching for "vocab.db", and paste it in the same folder as the Kindle2Anki.py file
+- plug your kindle into your computer and grab the vocab.db file from your kindle's system folder ```system/vocabulary/vocab.db```, or by searching for "vocab.db", and paste it in the same folder as the Kindle2Anki.py file
 - Run the script
 
 ### First run setup
