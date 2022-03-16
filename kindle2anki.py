@@ -179,7 +179,6 @@ def deconjug(term, source, mode=0):
                 return tkSource[i].normalized_form()
 
 def lookup(term, source, dictN=0):
-    global dicts
     try:
         definition = dicts[dictN][term]
         return [term, definition[1], definition[5][0], source.strip(), dictN]
@@ -250,17 +249,15 @@ for i in range(len(dbSource)):
         wordCountAdded[dbSource[i][2]] = 0
     if dbSource[i][2] not in book_listDB:
         book_listDB.append(dbSource[i][2])
-
-for i in range(len(dbSource)):
-    if re.search("ja", dbSource[i][1]):
-        try:
-            tmpWords = lookup(dict_DBtermsRev[dbSource[i][1]], dbSource[i][5])
-            stem = dict_DBtermsRev[dbSource[i][1]]
-            if tmpWords != None:
-                if (tmpWords[0] in history) or (stem in history) or (tmpWords[0] in historyFreq) or (stem in historyFreq) or (tmpWords[0] in historyError) or (stem in historyError):
-                    wordCountAdded[dbSource[i][2]] += 1
-        except:
+    try:
+        tmpWords = lookup(dict_DBtermsRev[dbSource[i][1]], dbSource[i][5])
+        stem = dict_DBtermsRev[dbSource[i][1]]
+        if tmpWords == None:
             wordCountAdded[dbSource[i][2]] += 1
+        elif (tmpWords[0] in history) or (stem in history) or (tmpWords[0] in historyFreq) or (stem in historyFreq) or (tmpWords[0] in historyError) or (stem in historyError):
+            wordCountAdded[dbSource[i][2]] += 1
+    except:
+        continue
 
 for i in range(len(dbBooks)):
     if dbBooks[i][3] == "ja":
@@ -269,6 +266,7 @@ for i in range(len(dbBooks)):
             book_list.append(dbBooks[i][4])
 
 def pickBook(numCards=9999):
+    global history
     global historyFreq
     global historyError
     global cnt
