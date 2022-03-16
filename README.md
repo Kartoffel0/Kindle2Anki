@@ -50,6 +50,7 @@ This script utilizes [Yomichan dictionaries](https://github.com/FooSoft/yomichan
 - Wait for it to finish and when asked enter "OK" to close the script
 
 ## Note that:
+- The indicated number of new cards is somewhat off most of the time, it is only a visual indicator and don't actually affect the number of cards generated
 - The script will only create cards for japanese words
 - The script will not generate duplicate cards
 - The cards are generated automatically, flaws are expected(even more with kindle's shitty text parser)
