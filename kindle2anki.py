@@ -28,9 +28,6 @@ freqMain = json.load(freqMainFile)
 historyFile = open("app_files/added.json", encoding="utf-8")
 history = json.load(historyFile)
 
-historyFile2 = open("app_files/FreqHigh.json", encoding="utf-8")
-historyFreq = json.load(historyFile2)
-
 historyFile3 = open("app_files/errorHistory.json", encoding="utf-8")
 historyError = json.load(historyFile3)
 
@@ -177,36 +174,34 @@ def deconjug(term, source, mode=0):
                 return tkSource[i].dictionary_form()
             else:
                 return tkSource[i].normalized_form()
+    if mode == 0:
+        return tkTerm[0].dictionary_form()
+    else:
+        return tkTerm[0].normalized_form()
+        
 
 def lookup(term, source, dictN=0):
     try:
-        definition = dicts[dictN][term]
-        return [term, definition[1], definition[5][0], source.strip(), dictN]
+        part = re.search("[か|が|し|さ|で|と|な|に|の|は|へ|も|や|ら]$", term)
+        if part != None:
+            term = term[0:-1]
+            definition = dicts[dictN][term]
+            return [term, definition[1], definition[5][0], source.strip(), dictN]
+        else:
+            definition = dicts[dictN][term]
+            return [term, definition[1], definition[5][0], source.strip(), dictN]
     except KeyError:
         try:
-            tmpTerm = term.strip()
-            tmpTerm = tmpTerm[0:-1]
-            tmpTerm += "い"
-            definition = dicts[dictN][tmpTerm]
-            return [tmpTerm, definition[1], definition[5][0], source.strip(), dictN]
+            termTK = deconjug(term, source)
+            definition = dicts[dictN][termTK]
+            return [termTK, definition[1], definition[5][0], source.strip(), dictN]
         except KeyError:
             try:
-                tmpTerm = term.strip()
-                tmpTerm += "い"
-                definition = dicts[dictN][tmpTerm]
-                return [tmpTerm, definition[1], definition[5][0], source.strip(), dictN]
+                termTK = deconjug(term, source, 1)
+                definition = dicts[dictN][termTK]
+                return [termTK, definition[1], definition[5][0], source.strip(), dictN]
             except KeyError:
-                try:
-                    termTK = deconjug(term, source)
-                    definition = dicts[dictN][termTK]
-                    return [termTK, definition[1], definition[5][0], source.strip(), dictN]
-                except KeyError:
-                    try:
-                        termTK = deconjug(term, source, 1)
-                        definition = dicts[dictN][termTK]
-                        return [termTK, definition[1], definition[5][0], source.strip(), dictN]
-                    except KeyError:
-                        return None
+                return None
 
 
 sqliteConnection = sqlite3.connect('vocab.db')
@@ -226,7 +221,9 @@ dbBooks = cursor3.fetchall()
 
 dict_DBterms = {}
 dict_DBtermsRev = {}
-term_list = deque()
+dict_DBtermsRev2 = {}
+term_listS = deque()
+term_listW = deque()
 dict_DBsource = {}
 dict_DBBooks = {}
 book_list = []
@@ -237,14 +234,16 @@ cnt = 0
 
 for i in range(len(dbWords)):
     if dbWords[i][3] == "ja":
-        dict_DBterms[dbWords[i][2]] = dbWords[i][0]
-        dict_DBtermsRev[dbWords[i][0]] = dbWords[i][2]
-        term_list.appendleft(dbWords[i][2])
+        dict_DBterms[dbWords[i][1]] = dbWords[i][0]
+        dict_DBtermsRev[dbWords[i][0]] = dbWords[i][1]
+        dict_DBtermsRev2[dbWords[i][0]] = dbWords[i][2]
+        term_listS.appendleft(dbWords[i][2])
+        term_listW.appendleft(dbWords[i][1])
 
 for i in range(len(dbSource)):
-    try:
+    if dbSource[i][2] in wordCount and dbSource[i][2] in wordCountAdded:
         wordCount[dbSource[i][2]] += 1
-    except:
+    else:
         wordCount[dbSource[i][2]] = 1
         wordCountAdded[dbSource[i][2]] = 0
     if dbSource[i][2] not in book_listDB:
@@ -252,22 +251,26 @@ for i in range(len(dbSource)):
     try:
         tmpWords = lookup(dict_DBtermsRev[dbSource[i][1]], dbSource[i][5])
         stem = dict_DBtermsRev[dbSource[i][1]]
+        stem2 = dict_DBtermsRev2[dbSource[i][1]]
         if tmpWords == None:
             wordCountAdded[dbSource[i][2]] += 1
-        elif (tmpWords[0] in history) or (stem in history) or (tmpWords[0] in historyFreq) or (stem in historyFreq) or (tmpWords[0] in historyError) or (stem in historyError):
+        elif (tmpWords[0] in history) or (stem in history) or (stem2 in history) or (tmpWords[0] in historyError) or (stem in historyError) or (stem2 in historyError):
             wordCountAdded[dbSource[i][2]] += 1
     except:
         continue
 
 for i in range(len(dbBooks)):
     if dbBooks[i][3] == "ja":
-        dict_DBBooks[dbBooks[i][4]] = dbBooks[i][0]
+        if dbBooks[i][4] in dict_DBBooks:
+            if dbBooks[i][0] in book_listDB:
+                dict_DBBooks[dbBooks[i][4]] = dbBooks[i][0]
+        else:
+            dict_DBBooks[dbBooks[i][4]] = dbBooks[i][0]
         if (dbBooks[i][4] not in book_list) and (dbBooks[i][0] in book_listDB):
             book_list.append(dbBooks[i][4])
 
 def pickBook(numCards=9999):
     global history
-    global historyFreq
     global historyError
     global cnt
     print("\n\n")
@@ -281,13 +284,13 @@ def pickBook(numCards=9999):
     for i in range(len(dbSource)):
         if dbSource[i][2] == book:
             dict_DBsource[dbSource[i][1]] = dbSource[i][5]
-    for j in range(len(term_list)):
-        if dict_DBterms[term_list[j]] in dict_DBsource:
+    for j in range(len(term_listW)):
+        if dict_DBterms[term_listW[j]] in dict_DBsource:
             try:
-                tmpList = lookup(term_list[j], dict_DBsource[dict_DBterms[term_list[j]]])
+                tmpList = lookup(term_listW[j], dict_DBsource[dict_DBterms[term_listW[j]]])
                 if tmpList != None:
                     subFreq = False
-                    if (tmpList[0] in history) or (term_list[j] in history) or (tmpList[0] in historyFreq) or (term_list[j] in historyFreq) or (tmpList[0] in historyError) or (term_list[j] in historyError):
+                    if (tmpList[0] in history) or (term_listW[j] in history) or (term_listS[j] in history) or (tmpList[0] in historyError) or (term_listW[j] in historyError) or (term_listS[j] in historyError):
                         continue
                     for q in range(len(freqlists)):
                         try:
@@ -300,9 +303,9 @@ def pickBook(numCards=9999):
                         if subFreq:
                             entries = []
                             for u in range(config["dictNum"]):
-                                entry = lookup(term_list[j], dict_DBsource[dict_DBterms[term_list[j]]], u)
+                                entry = lookup(term_listW[j], dict_DBsource[dict_DBterms[term_listW[j]]], u)
                                 if entry != None:
-                                    if (entry[0] in history) or (term_list[j] in history) or (entry[0] in historyFreq) or (term_list[j] in historyFreq) or (entry[0] in historyError) or (term_list[j] in historyError):
+                                    if (entry[0] in history) or (term_listW[j] in history) or (term_listS[j] in history) or (entry[0] in historyError) or (term_listW[j] in historyError) or (term_listS[j] in historyError):
                                         continue
                                     else:
                                         entries.append(entry)
@@ -320,17 +323,14 @@ def pickBook(numCards=9999):
                                 cnt += 1
                         else:
                             print("Fail! Freq rank > {} or no frequency avaiable: ".format(freqMax), tmpList[0])
-                            historyFreq.append(tmpList[0])
             except KeyError:
-                print("Fail! No entry avaiable for: ", term_list[j])
-                historyError.append(term_list[j])
+                print("Fail! No entry avaiable for: ", term_listW[j])
+                historyError.append(term_listW[j])
 
 pickBook()
 
 with open("app_files/added.json", "w", encoding="utf-8") as file:
     json.dump(history, file, ensure_ascii=False)
-with open("app_files/FreqHigh.json", "w", encoding="utf-8") as file:
-    json.dump(historyFreq, file, ensure_ascii=False)
 with open("app_files/errorHistory.json", "w", encoding="utf-8") as file:
     json.dump(historyError, file, ensure_ascii=False)
 
