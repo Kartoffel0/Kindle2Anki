@@ -15,6 +15,18 @@ no guarantees tho
 """
 
 TKZR = dictionary.Dictionary(dict_type="full").create()
+cntCards = 0
+dict_DBterms = {}
+dict_DBtermsRev = {}
+dict_DBtermsRev2 = {}
+term_listS = deque()
+term_listW = deque()
+dict_DBsource = {}
+dict_DBBooks = {}
+book_list = []
+book_listDB = []
+wordCount = {}
+wordCountAdded = {}
 
 dictsFile = open("app_files/dicts.json", encoding="utf-8")
 dicts = json.load(dictsFile)
@@ -92,9 +104,9 @@ def add_freqList(freqN):
             else:
                 freqlists[freqN][j[0]] = j[2]
 
-print("Kindle2Anki")
+print("Kindle2Anki - https://github.com/Kartoffel0/Kindle2Anki")
 if config["first_run"] == 1:
-    print("\n\nThis will only be asked once,\non the next run you'll not have to inform everything again.")
+    print("\nThis will only be asked once,\non the next run you'll not have to inform everything again.")
     dict_Num = int(input("\nPlease inform how many dictionaries you want to add: "))
     print("\nEnsure the zips are on the same directory as this script")
     config["dictNum"] = dict_Num
@@ -153,17 +165,28 @@ def newCard(deckInfo, term, reading, defs, source):
         print("Warning! Card created without audio: ", term)
         return {"action": "addNote", "version": 6, "params": {"note":{"deckName": deckInfo[0], "modelName": deckInfo[1], "fields": {deckInfo[2]: term, deckInfo[3]: reading, deckInfo[4]: defs.replace("\n", "<br>"), deckInfo[5]: source}, "options": {"allowDuplicate": False, "duplicateScope": "deck", "duplicateScopeOptions": {"deckName": deckInfo[0], "checkChildren": False, "checkAllModels": False}}, "tags": ["Kindle2Anki"]}}}
 
-def invoke(action, params, term="error"):
+def invoke(params, term="error"):
+    global cntCards
     global history
     global historyError
-    history.append(term)
     time.sleep(3)
     try:
         requestJson = json.dumps(params).encode('utf-8')
         response = json.load(urllib.request.urlopen(urllib.request.Request('http://localhost:8765', requestJson)))
+        if len(response) == 2:
+            if response['error'] is None:
+                history.append(term)
+                cntCards += 1
+                print(cntCards, "Success:   ", term)
+            elif response['error'] == 'cannot create note because it is a duplicate':
+                print("Fail!    Note is a duplicate: ", term)
+            else:
+                raise Exception
+        else:
+            raise Exception
     except:
         historyError.append(term)
-        print("Fail! Failed to add: ", term)
+        print("Fail!    Failed to add: ", term)
 
 def deconjug(term, source, mode=0):
     tkTerm = TKZR.tokenize(term)
@@ -218,20 +241,6 @@ cursor3 = sqliteConnection.cursor()
 cursor3.execute("SELECT * FROM BOOK_INFO;")
 dbBooks = cursor3.fetchall()
 
-
-dict_DBterms = {}
-dict_DBtermsRev = {}
-dict_DBtermsRev2 = {}
-term_listS = deque()
-term_listW = deque()
-dict_DBsource = {}
-dict_DBBooks = {}
-book_list = []
-book_listDB = []
-wordCount = {}
-wordCountAdded = {}
-cnt = 0
-
 for i in range(len(dbWords)):
     if dbWords[i][3] == "ja":
         dict_DBterms[dbWords[i][1]] = dbWords[i][0]
@@ -272,15 +281,14 @@ for i in range(len(dbBooks)):
 def pickBook(numCards=9999):
     global history
     global historyError
-    global cnt
-    print("\n\n")
+    global cntCards
+    print()
     for i in range(len(book_list)):
         print("id:",i,"\t|","Words:",wordCount[dict_DBBooks[book_list[i]]],"\t|","New:",(wordCount[dict_DBBooks[book_list[i]]] - wordCountAdded[dict_DBBooks[book_list[i]]]), "\t|",book_list[i])
     book = dict_DBBooks[book_list[int(input("\nEnter the id of the book to mine from: "))]]
     numCards = int(input("\nEnter the number of words to be processed, or 0 to try to add all avaiable: "))
     if numCards == 0:
         numCards = 9999
-    cnt = 0
     for i in range(len(dbSource)):
         if dbSource[i][2] == book:
             dict_DBsource[dbSource[i][1]] = dbSource[i][5]
@@ -299,7 +307,7 @@ def pickBook(numCards=9999):
                                 subFreq = True
                         except KeyError:
                             continue
-                    if cnt <= numCards:
+                    if cntCards <= numCards:
                         if subFreq:
                             entries = []
                             for u in range(config["dictNum"]):
@@ -318,13 +326,11 @@ def pickBook(numCards=9999):
                                     definition += '<li><i>({})</i>{}</li>'.format(dict_name[o[4]], o[2])
                                 definition += '</ol></div>'
                                 card = newCard([config["deckName"], config["cardType"], config["termField"], config["readField"], config["dictField"], config["sentField"], config["audioField"]], entries[0][0], furigana, definition, entries[0][3])
-                                invoke("addNote", card, entries[0][0])
-                                print(cnt, "Success: ", entries[0][0])
-                                cnt += 1
+                                invoke(card, entries[0][0])
                         else:
-                            print("Fail! Freq rank > {} or no frequency avaiable: ".format(freqMax), tmpList[0])
+                            print("Fail!    Freq rank > {} or no frequency avaiable: ".format(freqMax), tmpList[0])
             except KeyError:
-                print("Fail! No entry avaiable for: ", term_listW[j])
+                print("Fail!    No entry avaiable for: ", term_listW[j])
                 historyError.append(term_listW[j])
 
 pickBook()
@@ -334,4 +340,4 @@ with open("app_files/added.json", "w", encoding="utf-8") as file:
 with open("app_files/errorHistory.json", "w", encoding="utf-8") as file:
     json.dump(historyError, file, ensure_ascii=False)
 
-endVar = input("\n\nAdded cards(not excluding the ones that were duplicates so the actual number of created cards probably is lower): {}\n\nEnter 'OK' to close the script: ".format(cnt))
+endVar = input("\nAdded cards: {}\n\nEnter 'OK' to close the script: ".format(cntCards))
