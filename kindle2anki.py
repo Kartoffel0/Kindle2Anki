@@ -48,8 +48,20 @@ freqlists = json.load(freqListsFile)
 
 configFile = open("app_files/config.json", encoding="utf-8")
 config = json.load(configFile)
-if "bookName" not in config:
-    config["bookName"] = 0
+if "bookName" not in config and config["first_run"] == 0:
+    bookOpt = int(input("\nWould you like to add the name of the book you're mining from to your cards?\nEnter 1 to confirm or 0 to decline: "))
+    if bookOpt == 0:
+        config["bookName"] = 0
+        with open("app_files/config.json", "w", encoding="utf-8") as file:
+            json.dump(config, file, ensure_ascii=False)
+        print("\nDone!\n")
+    else:
+        bookField = input('\nPlease inform the field name!!!case sensitive!!! where you want the "Book Name" to be: ')
+        config["bookName"] = 1
+        config["bookField"] = bookField
+        with open("app_files/config.json", "w", encoding="utf-8") as file:
+            json.dump(config, file, ensure_ascii=False)
+        print("\nDone!")
 dict_name = config["dict_Names"]
 freqMax = config["freqMax"]
 
@@ -179,7 +191,6 @@ def newCard(deckInfo, term, reading, defs, source, book=0):
 
 def invoke(params, term="error"):
     global cntCards
-    global history
     global historyError
     time.sleep(3)
     try:
@@ -187,7 +198,6 @@ def invoke(params, term="error"):
         response = json.load(urllib.request.urlopen(urllib.request.Request('http://localhost:8765', requestJson)))
         if len(response) == 2:
             if response['error'] is None:
-                history.append(term)
                 cntCards += 1
                 print(cntCards, "Success:   ", term)
             elif response['error'] == 'cannot create note because it is a duplicate':
@@ -341,9 +351,11 @@ def pickBook(numCards=9999):
                                 if config["bookName"] == 0:
                                     card = newCard([config["deckName"], config["cardType"], config["termField"], config["readField"], config["dictField"], config["sentField"], config["audioField"]], entries[0][0], furigana, definition, entries[0][3])
                                     invoke(card, entries[0][0])
+                                    history.append(term_listW[j])
                                 else:
                                     card = newCard([config["deckName"], config["cardType"], config["termField"], config["readField"], config["dictField"], config["sentField"], config["audioField"], config["bookField"]], entries[0][0], furigana, definition, entries[0][3], bookName)
                                     invoke(card, entries[0][0])
+                                    history.append(term_listW[j])
                         else:
                             print("Fail!    Freq rank > {} or no frequency avaiable: ".format(freqMax), tmpList[0])
             except KeyError:
