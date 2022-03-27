@@ -330,7 +330,7 @@ def pickBook(numCards=9999):
                                 subFreq = True
                         except KeyError:
                             continue
-                    if cntCards <= numCards:
+                    if cntCards < numCards:
                         if subFreq:
                             entries = []
                             for u in range(config["dictNum"]):
