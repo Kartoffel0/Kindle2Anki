@@ -225,29 +225,35 @@ def deconjug(term, source, mode=0):
         return tkTerm[0].normalized_form()
         
 
-def lookup(term, source, dictN=0):
-    try:
-        part = re.search("[か|が|し|さ|で|と|な|に|の|は|へ|も|や|ら]$", term)
-        if part != None:
-            term = term[0:-1]
-            definition = dicts[dictN][term]
-            return [term, definition[1], definition[5][0], source.strip(), dictN]
-        else:
-            definition = dicts[dictN][term]
-            return [term, definition[1], definition[5][0], source.strip(), dictN]
-    except KeyError:
+def lookup(term, source, dictN=0, runN=0):
+    if runN == 0:
         try:
-            termTK = deconjug(term, source)
-            definition = dicts[dictN][termTK]
-            return [termTK, definition[1], definition[5][0], source.strip(), dictN]
+            part = re.search("[か|が|し|さ|で|と|な|に|の|は|へ|も|や|ら]$", term)
+            if part != None:
+                term = term[0:-1]
+                definition = dicts[dictN][term]
+                return [term, definition[1], definition[5][0], source.strip(), dictN]
+            else:
+                definition = dicts[dictN][term]
+                return [term, definition[1], definition[5][0], source.strip(), dictN]
         except KeyError:
             try:
-                termTK = deconjug(term, source, 1)
+                termTK = deconjug(term, source)
                 definition = dicts[dictN][termTK]
                 return [termTK, definition[1], definition[5][0], source.strip(), dictN]
             except KeyError:
-                return None
-
+                try:
+                    termTK = deconjug(term, source, 1)
+                    definition = dicts[dictN][termTK]
+                    return [termTK, definition[1], definition[5][0], source.strip(), dictN]
+                except KeyError:
+                    return None
+    else:
+        try:
+            definition = dicts[dictN][term]
+            return [term, definition[1], definition[5][0], source.strip(), dictN]
+        except KeyError:
+            pass
 
 sqliteConnection = sqlite3.connect('vocab.db')
 
@@ -334,17 +340,26 @@ def pickBook(numCards=9999):
                         if subFreq:
                             entries = []
                             for u in range(config["dictNum"]):
-                                entry = lookup(term_listW[j], dict_DBsource[dict_DBterms[term_listW[j]]], u)
-                                if entry != None:
-                                    if (entry[0] in history) or (term_listW[j] in history) or (term_listS[j] in history) or (entry[0] in historyError) or (term_listW[j] in historyError) or (term_listS[j] in historyError):
-                                        continue
-                                    else:
-                                        entries.append(entry)
+                                if len(entries) == 0:
+                                    entry = lookup(term_listW[j], dict_DBsource[dict_DBterms[term_listW[j]]], u, 0)
+                                    if entry != None:
+                                        if (entry[0] in history) or (term_listW[j] in history) or (term_listS[j] in history) or (entry[0] in historyError) or (term_listW[j] in historyError) or (term_listS[j] in historyError):
+                                            continue
+                                        else:
+                                            entries.append(entry)
+                                else:
+                                    entry = lookup(entries[0][0], dict_DBsource[dict_DBterms[term_listW[j]]], u, 1)
+                                    if entry != None:
+                                        if (entry[0] in history) or (term_listW[j] in history) or (term_listS[j] in history) or (entry[0] in historyError) or (term_listW[j] in historyError) or (term_listS[j] in historyError):
+                                            continue
+                                        else:
+                                            entries.append(entry)
+                                    
                             if len(entries) > 0:
                                 furigana = ''
                                 definition = '<div style="text-align: left;"><ol>'
                                 for o in entries:
-                                    if o[1] != "":
+                                    if o[1] != "" and furigana == '':
                                         furigana = o[1]
                                     definition += '<li><i>({})</i>{}</li>'.format(dict_name[o[4]], o[2])
                                 definition += '</ol></div>'
