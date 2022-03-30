@@ -41,7 +41,7 @@ This script utilizes [Yomichan dictionaries](https://github.com/FooSoft/yomichan
 # Usage
 #### This script uses AnkiConnect, make sure you have Anki running before you run the script
 - plug your kindle into your computer
-- grab the vocab.db file from your kindle's storage by going to ```system/vocabulary/vocab.db```, or by searching for "vocab.db", and paste it in the same folder as the Kindle2Anki.py file
+- grab the vocab.db file from your kindle's storage by going to ```system/vocabulary/```, or by searching for "vocab.db", and paste it in the same folder as the Kindle2Anki.py file
 - Run the script
 
 ### First run setup
