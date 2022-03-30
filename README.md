@@ -21,11 +21,15 @@ A simple Python script to create Anki cards for Japanese words from Kindle's Voc
  </table>
 
 # Requirements
-This script requires you to have Kindle's Vocab-Builder(```単語帳```) active
+This script requires you to have Kindle's Vocab-Builder active
+- ```Settings > Reading Options > Vocabulary Builder```
+- ```設定 > 読書オプション > 単語帳```
 
-[AnkiConnect](https://ankiweb.net/shared/info/2055492159)
+AnkiConnect
+- https://ankiweb.net/shared/info/2055492159
 
-[SudachiPy](https://pypi.org/project/SudachiDict-full/) ```pip install SudachiDict-full```
+[SudachiPy](https://pypi.org/project/SudachiDict-full/) 
+- ```pip install SudachiDict-full```
 
 This script utilizes [Yomichan dictionaries](https://github.com/FooSoft/yomichan#dictionaries) and [ranked frequency lists](https://drive.google.com/drive/folders/1g1drkFzokc8KNpsPHoRmDJ4OtMTWFuXi)
 #### The script is not compatible with multiple-frequency frequency lists, please use one with only 1 frequency per word
@@ -36,7 +40,8 @@ This script utilizes [Yomichan dictionaries](https://github.com/FooSoft/yomichan
 
 # Usage
 #### This script uses AnkiConnect, make sure you have Anki running before you run the script
-- plug your kindle into your computer and grab the vocab.db file from your kindle's system folder ```system/vocabulary/vocab.db```, or by searching for "vocab.db", and paste it in the same folder as the Kindle2Anki.py file
+- plug your kindle into your computer
+- grab the vocab.db file from your kindle's storage by going to ```system/vocabulary/vocab.db```, or by searching for "vocab.db", and paste it in the same folder as the Kindle2Anki.py file
 - Run the script
 
 ### First run setup
@@ -46,7 +51,7 @@ This script utilizes [Yomichan dictionaries](https://github.com/FooSoft/yomichan
 #### You will only have to inform this once, on the next run you'll not be asked for the same info again
 
 - Choose the book you want to mine from
-- Choose how many cards you want the script to generate, it doesn't account for the duplicates so the actual number of generated cards probably is lower
+- Choose how many cards you want the script to generate
 - Wait for it to finish and when asked enter "OK" to close the script
 
 ## Note that:
