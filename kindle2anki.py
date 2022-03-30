@@ -295,7 +295,7 @@ def pickBook(numCards=9999):
         print("id:",i,"\t|","Words:",wordCount[dict_DBBooks[book_list[i]]],"\t|","New:",(wordCount[dict_DBBooks[book_list[i]]] - wordCountAdded[dict_DBBooks[book_list[i]]]), "\t|",book_list[i])
     bookName = book_list[int(input("\nEnter the id of the book to mine from: "))]
     book = dict_DBBooks[bookName]
-    numCards = int(input("\nEnter the number of words to be processed, or 0 to try to add all avaiable: "))
+    numCards = int(input("\nEnter the number of cards to be created, or 0 to add all avaiable: "))
     if numCards == 0:
         numCards = 9999
     for i in range(len(dbSource)):
