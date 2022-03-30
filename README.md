@@ -28,7 +28,7 @@ This script requires you to have Kindle's Vocab-Builder active
 AnkiConnect
 - https://ankiweb.net/shared/info/2055492159
 
-[SudachiPy](https://pypi.org/project/SudachiDict-full/) 
+SudachiPy
 - ```pip install SudachiDict-full```
 
 This script utilizes [Yomichan dictionaries](https://github.com/FooSoft/yomichan#dictionaries) and [ranked frequency lists](https://drive.google.com/drive/folders/1g1drkFzokc8KNpsPHoRmDJ4OtMTWFuXi)
