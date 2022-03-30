@@ -4,7 +4,7 @@
 A simple Python script to create Anki cards for Japanese words from Kindle's Vocab-Builder and Yomichan dictionaries
 
 # Features
-- The script generates a ```Word, Reading, Definition, Sentence, Audio``` Anki card with definitions from how many Yomichan dictionaries you want and audio from JapanesePod
+- The script generates a ```Word, Reading, Definition, Sentence, Audio, BookName``` Anki card with definitions from how many Yomichan dictionaries you want and audio from JapanesePod
 - You can specify which book you want to generate cards from and set a limit to how many cards the script will create
 - You can specify the maximum frequency rank for the created cards, the script will ignore any words with a rank inferior to that
 - The script will only try to create a card for a specific word once, if you delete a faulty card it will not be created again on the next run.
