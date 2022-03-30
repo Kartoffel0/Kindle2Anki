@@ -48,6 +48,7 @@ freqlists = json.load(freqListsFile)
 
 configFile = open("app_files/config.json", encoding="utf-8")
 config = json.load(configFile)
+
 if "bookName" not in config and config["first_run"] == 0:
     bookOpt = int(input("\nWould you like to add the name of the book you're mining from to your cards?\nEnter 1 to confirm or 0 to decline: "))
     if bookOpt == 0:
@@ -210,50 +211,29 @@ def invoke(params, term="error"):
         historyError.append(term)
         print("Fail!    Failed to add: ", term)
 
-def deconjug(term, source, mode=0):
+def deconjug(term, mode=0):
     tkTerm = TKZR.tokenize(term)
-    tkSource = TKZR.tokenize(source)
-    for i in range(len(tkSource)):
-        if (re.search(term, tkSource[i].surface())) or (re.search(tkTerm[0].dictionary_form(), tkSource[i].dictionary_form()) or (re.search(tkTerm[0].normalized_form(), tkSource[i].normalized_form()))):
-            if mode == 0:
-                return tkSource[i].dictionary_form()
-            else:
-                return tkSource[i].normalized_form()
     if mode == 0:
         return tkTerm[0].dictionary_form()
     else:
         return tkTerm[0].normalized_form()
         
-
-def lookup(term, source, dictN=0, runN=0):
-    if runN == 0:
+def lookup(term, source, dictN=0):
+    try:
+        definition = dicts[dictN][term]
+        return [term, definition[1], definition[5][0], source.strip(), dictN]
+    except KeyError:
         try:
-            part = re.search("[か|が|し|さ|で|と|な|に|の|は|へ|も|や|ら]$", term)
-            if part != None:
-                term = term[0:-1]
-                definition = dicts[dictN][term]
-                return [term, definition[1], definition[5][0], source.strip(), dictN]
-            else:
-                definition = dicts[dictN][term]
-                return [term, definition[1], definition[5][0], source.strip(), dictN]
+            termTK = deconjug(term)
+            definition = dicts[dictN][termTK]
+            return [termTK, definition[1], definition[5][0], source.strip(), dictN]
         except KeyError:
             try:
-                termTK = deconjug(term, source)
+                termTK = deconjug(term, 1)
                 definition = dicts[dictN][termTK]
                 return [termTK, definition[1], definition[5][0], source.strip(), dictN]
             except KeyError:
-                try:
-                    termTK = deconjug(term, source, 1)
-                    definition = dicts[dictN][termTK]
-                    return [termTK, definition[1], definition[5][0], source.strip(), dictN]
-                except KeyError:
-                    return None
-    else:
-        try:
-            definition = dicts[dictN][term]
-            return [term, definition[1], definition[5][0], source.strip(), dictN]
-        except KeyError:
-            pass
+                return None
 
 sqliteConnection = sqlite3.connect('vocab.db')
 
@@ -341,20 +321,17 @@ def pickBook(numCards=9999):
                             entries = []
                             for u in range(config["dictNum"]):
                                 if len(entries) == 0:
-                                    entry = lookup(term_listW[j], dict_DBsource[dict_DBterms[term_listW[j]]], u, 0)
+                                    entry = lookup(term_listW[j], dict_DBsource[dict_DBterms[term_listW[j]]], u)
                                     if entry != None:
                                         if (entry[0] in history) or (term_listW[j] in history) or (term_listS[j] in history) or (entry[0] in historyError) or (term_listW[j] in historyError) or (term_listS[j] in historyError):
                                             continue
                                         else:
                                             entries.append(entry)
                                 else:
-                                    entry = lookup(entries[0][0], dict_DBsource[dict_DBterms[term_listW[j]]], u, 1)
+                                    entry = lookup(entries[0][0], dict_DBsource[dict_DBterms[term_listW[j]]], u)
                                     if entry != None:
-                                        if (entry[0] in history) or (term_listW[j] in history) or (term_listS[j] in history) or (entry[0] in historyError) or (term_listW[j] in historyError) or (term_listS[j] in historyError):
-                                            continue
-                                        else:
-                                            entries.append(entry)
-                                    
+                                        if entry[1] == entries[0][1]:
+                                            entries.append(entry)   
                             if len(entries) > 0:
                                 furigana = ''
                                 definition = '<div style="text-align: left;"><ol>'
