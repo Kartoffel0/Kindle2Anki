@@ -29,7 +29,7 @@ AnkiConnect
 - https://ankiweb.net/shared/info/2055492159
 
 SudachiPy
-- ```pip install SudachiDict-full```
+- ```pip install sudachipy sudachidict_full```
 
 This script utilizes [Yomichan dictionaries](https://github.com/FooSoft/yomichan#dictionaries) and [ranked frequency lists](https://drive.google.com/drive/folders/1g1drkFzokc8KNpsPHoRmDJ4OtMTWFuXi)
 #### The script is not compatible with multiple-frequency frequency lists, please use one with only 1 frequency per word
