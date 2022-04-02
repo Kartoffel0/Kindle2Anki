@@ -353,7 +353,7 @@ def pickBook(numCards=9999):
                                     invoke(card, entries[0][0])
                                     history.append(term_listW[j])
                         else:
-                            print("Fail!    Freq rank > {} or no frequency avaiable: ".format(freqMax), tmpList[0])
+                            print("Fail!    Frequency rank > {} or no frequency avaiable: ".format(freqMax), tmpList[0])
             except KeyError:
                 print("Fail!    No entry avaiable for: ", term_listW[j])
                 historyError.append(term_listW[j])
