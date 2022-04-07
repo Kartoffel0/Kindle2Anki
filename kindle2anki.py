@@ -284,9 +284,10 @@ for i in range(len(dbBooks)):
     if dbBooks[i][3] == "ja":
         if dbBooks[i][4] in dict_DBBooks:
             if dbBooks[i][0] in book_listDB:
-                dict_DBBooks[dbBooks[i][4]] = dbBooks[i][0]
+                dict_DBBooks[dbBooks[i][4]+"."] = dbBooks[i][0]
         else:
-            dict_DBBooks[dbBooks[i][4]] = dbBooks[i][0]
+            if dbBooks[i][0] in book_listDB:
+                dict_DBBooks[dbBooks[i][4]] = dbBooks[i][0]
         if (dbBooks[i][4] not in book_list) and (dbBooks[i][0] in book_listDB):
             book_list.append(dbBooks[i][4])
 
