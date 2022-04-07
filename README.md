@@ -36,6 +36,7 @@ This script utilizes [Yomichan dictionaries](https://github.com/FooSoft/yomichan
 
 # Installation
 - Download the latest [release](https://github.com/Kartoffel0/Kindle2Anki/releases) and extract the file somewhere
+
 Or
 - Clone this repository
 
