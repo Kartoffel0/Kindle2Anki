@@ -27,6 +27,7 @@ book_list = []
 book_listDB = []
 wordCount = {}
 wordCountAdded = {}
+sameBook = {}
 
 dictsFile = open("app_files/dicts.json", encoding="utf-8")
 dicts = json.load(dictsFile)
@@ -284,14 +285,17 @@ for i in range(len(dbBooks)):
     if dbBooks[i][3] == "ja":
         if dbBooks[i][4] in dict_DBBooks:
             if dbBooks[i][0] in book_listDB:
-                dict_DBBooks[dbBooks[i][4]+"."] = dbBooks[i][0]
+                sameBook[dbBooks[i][4]] += 1
+                dict_DBBooks[dbBooks[i][4]+("*" * sameBook[dbBooks[i][4]])] = dbBooks[i][0]
+                book_list.append(dbBooks[i][4]+("*" * sameBook[dbBooks[i][4]]))
         else:
             if dbBooks[i][0] in book_listDB:
                 dict_DBBooks[dbBooks[i][4]] = dbBooks[i][0]
-        if (dbBooks[i][4] not in book_list) and (dbBooks[i][0] in book_listDB):
-            book_list.append(dbBooks[i][4])
-
-def pickBook(numCards=9999):
+                sameBook[dbBooks[i][4]] = 0
+                if dbBooks[i][4] not in book_list:
+                    book_list.append(dbBooks[i][4])
+        
+def pickBook():
     global history
     global historyError
     global cntCards
@@ -301,8 +305,8 @@ def pickBook(numCards=9999):
     bookName = book_list[int(input("\nEnter the id of the book to mine from: "))]
     book = dict_DBBooks[bookName]
     numCards = int(input("\nEnter the number of cards to added, or 0 to try to add all avaiable: "))
-    if numCards == 0:
-        numCards = 9999
+    if numCards <= 0:
+        numCards = 99999
     for i in range(len(dbSource)):
         if dbSource[i][2] == book:
             dict_DBsource[dbSource[i][1]] = dbSource[i][5]
@@ -350,7 +354,7 @@ def pickBook(numCards=9999):
                                     invoke(card, entries[0][0])
                                     history.append(term_listW[j])
                                 else:
-                                    card = newCard([config["deckName"], config["cardType"], config["termField"], config["readField"], config["dictField"], config["sentField"], config["audioField"], config["bookField"]], entries[0][0], furigana, definition, entries[0][3], bookName)
+                                    card = newCard([config["deckName"], config["cardType"], config["termField"], config["readField"], config["dictField"], config["sentField"], config["audioField"], config["bookField"]], entries[0][0], furigana, definition, entries[0][3], bookName.rstrip("*"))
                                     invoke(card, entries[0][0])
                                     history.append(term_listW[j])
                         else:
