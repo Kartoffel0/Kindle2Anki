@@ -35,8 +35,10 @@ This script utilizes [Yomichan dictionaries](https://github.com/FooSoft/yomichan
 #### The script is not compatible with multiple-frequency frequency lists, please use one with only 1 frequency per word
 
 # Installation
-- Download the latest [release](https://github.com/Kartoffel0/Kindle2Anki/releases)
-- Extract the file
+- Download the latest [release](https://github.com/Kartoffel0/Kindle2Anki/releases) and extract the file somewhere
+
+Or
+- Clone this repository
 
 # Usage
 #### This script uses AnkiConnect, make sure you have Anki running before you run the script
