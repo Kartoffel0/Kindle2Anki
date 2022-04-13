@@ -29,7 +29,7 @@ A simple Python script to create Anki cards for Japanese words from Kindle's Voc
 
 # Usage
 ### This script utilizes AnkiConnect, make sure you have Anki running on the background before you run the script
-- plug your kindle into your computer and grab the vocab.db file from its storage by going to ```system/vocabulary/```, or by searching for "vocab.db", and paste it in the same folder as the Kindle2Anki.py file
+- Plug your kindle into your computer and grab the vocab.db file from its storage by going to ```system/vocabulary/```, or by searching for "vocab.db", and paste it in the same folder as the Kindle2Anki.py file
 - Run the script
 - Choose the book you want to mine from when prompted to
 - Choose how many cards you want the script to generate when prompted to
@@ -42,7 +42,7 @@ A simple Python script to create Anki cards for Japanese words from Kindle's Voc
 
 ## Note that:
 - This script will only create cards for japanese words
-- This script will not generate duplicate cards
-- The cards are generated automatically, flaws are expected (~~even more with kindle's shitty text parser~~)
+- This script will not generate any duplicate cards
+- The cards are generated automatically, flaws are expected ~~even more with kindle's shitty text parser~~
 - This script will only try to create a card for a specific word once, if you delete a faulty card it will not be created again on the next run. As you run the script more times the amount of faulty cards is expected to diminish
 - The indicated number of new cards is somewhat off most of the time, it is only a visual indicator and don't actually affect the number of cards generated
