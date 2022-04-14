@@ -19,7 +19,7 @@ A simple Python script to create Anki cards for Japanese words from Kindle's Voc
  </table>
 
 # Installation
-- Turn on your Kindle's Vocab Builder on
+- Make sure Kindle's Vocab Builder is active on
 ```Settings > Reading Options > Vocabulary Builder```or
 ```設定 > 読書オプション > 単語帳```
 - Install SudachiPy
