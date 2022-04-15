@@ -28,6 +28,8 @@ book_listDB = []
 wordCount = {}
 wordCountAdded = {}
 sameBook = {}
+timestampsDB = {}
+wordCountNew = {}
 
 dictsFile = open("app_files/dicts.json", encoding="utf-8")
 dicts = json.load(dictsFile)
@@ -51,21 +53,25 @@ configFile = open("app_files/config.json", encoding="utf-8")
 config = json.load(configFile)
 
 if "bookName" not in config and config["first_run"] == 0:
-    bookOpt = int(input("\nWould you like to add the name of the book you're mining from to your cards?\nEnter 1 to confirm or 0 to decline: "))
+    bookOpt = int(input("\n Would you like to add the name of the book you're mining from to your cards?\n Enter 1 to confirm or 0 to decline: "))
     if bookOpt == 0:
         config["bookName"] = 0
         with open("app_files/config.json", "w", encoding="utf-8") as file:
             json.dump(config, file, ensure_ascii=False)
-        print("\nDone!\n")
+        print("\n Done!\n")
     else:
-        bookField = input('\nPlease inform the field name!!!case sensitive!!! where you want the "Book Name" to be: ')
+        bookField = input('\n Please inform the field name!!!case sensitive!!! where you want the "Book Name" to be: ')
         config["bookName"] = 1
         config["bookField"] = bookField
         with open("app_files/config.json", "w", encoding="utf-8") as file:
             json.dump(config, file, ensure_ascii=False)
-        print("\nDone!")
+        print("\n Done!")
 dict_name = config["dict_Names"]
 freqMax = config["freqMax"]
+try:
+    timestamps = config["timestamps"].copy()
+except:
+    timestamps, config["timestamps"] = {}, {}
 
 def add_dict(dictN):
     global dict_name
@@ -124,41 +130,41 @@ def add_freqList(freqN):
                 else:
                     freqlists[freqN][j[0]] = j[2]
 
-print("Kindle2Anki - https://github.com/Kartoffel0/Kindle2Anki")
+print(" Kindle2Anki - https://github.com/Kartoffel0/Kindle2Anki")
 if config["first_run"] == 1:
-    print("\nThis will only be asked once,\non the next run you'll not have to inform everything again.")
-    dict_Num = int(input("\nPlease inform how many dictionaries you want to add: "))
-    print("\nEnsure the zips are on the same directory as this script")
+    print("\n This will only be asked once,\n on the next run you'll not have to inform everything again.")
+    dict_Num = int(input("\n Please inform how many dictionaries you want to add: "))
+    print("\n Ensure the zips are on the same directory as this script")
     config["dictNum"] = dict_Num
     for i in range(dict_Num):
-        with zipfile.ZipFile("{}".format(input("\nEnter the filename for your {}° dictionary: ".format(i+1))), 'r') as zip_ref:
+        with zipfile.ZipFile("{}".format(input("\n Enter the filename for your {}° dictionary: ".format(i+1))), 'r') as zip_ref:
             zip_ref.extractall("app_files/{}".format(i))
         appendDict2()
         add_dict(i)
-    freqNum = int(input("\nThis script don't support multi frequency per word frequency lists,\nmake sure the frequency list you'll add has only one frequency per word\n\nPlease inform how many frequency lists you want to add,\nyou have to add at least one: "))
+    freqNum = int(input("\n This script don't support multi frequency per word frequency lists,\n make sure the frequency list you'll add has only one frequency per word\n\n Please inform how many frequency lists you want to add,\n you have to add at least one: "))
     for j in range(freqNum):
-        with zipfile.ZipFile("{}".format(input("\nEnter the filename for your {}° frequency list: ".format(j+1))), 'r') as zip_ref:
+        with zipfile.ZipFile("{}".format(input("\n Enter the filename for your {}° frequency list: ".format(j+1))), 'r') as zip_ref:
             zip_ref.extractall("app_files/freq/{}".format(j))
         appendDict()
         add_freqList(j)
-    freqMax = int(input("\nPlease inform the maximum frequency limit\nany words with a frequency rank superior to\nthat will not be processed: "))
+    freqMax = int(input("\n Please inform the maximum frequency limit\n any words with a frequency rank superior to\n that will not be processed: "))
     config["freqMax"] = freqMax
     config["first_run"] = 0
-    deck = input("\nPlease inform the name of the deck(!!!case sensitive!!!) where you want the cards to be added: ")
+    deck = input("\n Please inform the name of the deck(!!!case sensitive!!!) where you want the cards to be added: ")
     config["deckName"] = deck
-    cardType = input("\nPlease inform the card type(!!!case sensitive!!!) you want to use as template for the added cards: ")
+    cardType = input("\n Please inform the card type(!!!case sensitive!!!) you want to use as template for the added cards: ")
     config["cardType"] = cardType
-    termField = input("\nPlease inform the field name(!!!case sensitive!!!) where you want the 'Word' to be: ")
+    termField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Word' to be: ")
     config["termField"] = termField
-    readField = input("\nPlease inform the field name(!!!case sensitive!!!) where you want the 'Reading' to be: ")
+    readField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Reading' to be: ")
     config["readField"] = readField
-    dictField = input("\nPlease inform the field name(!!!case sensitive!!!) where you want the 'Definitions' to be: ")
+    dictField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Definitions' to be: ")
     config["dictField"] = dictField
-    sentField = input("\nPlease inform the field name(!!!case sensitive!!!) where you want the 'Sentence' to be: ")
+    sentField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Sentence' to be: ")
     config["sentField"] = sentField
-    audioField = input("\nPlease inform the field name(!!!case sensitive!!!) where you want the 'Audio' to be: ")
+    audioField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Audio' to be: ")
     config["audioField"] = audioField
-    nameField = input("\nPlease inform the field name(!!!case sensitive!!!) where you want the 'Book Name' to be\nEnter 0 if you don't want to add the book name to your cards: ")
+    nameField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Book Name' to be\n Enter 0 if you don't want to add the book name to your cards: ")
     if nameField != 0:
         config["bookName"] = 1
         config["bookField"] = nameField
@@ -178,7 +184,7 @@ if config["first_run"] == 1:
         json.dump(dicts, file, ensure_ascii=False)
     with open("app_files/freqLists.json", "w", encoding="utf-8") as file:
         json.dump(freqlists, file, ensure_ascii=False)
-    print("\nDone!\n")
+    print("\n Done!\n")
 
 def newCard(deckInfo, term, reading, defs, source, book=0):
     global jpod
@@ -189,7 +195,7 @@ def newCard(deckInfo, term, reading, defs, source, book=0):
         else:
             return {"action": "addNote", "version": 6, "params": {"note":{"deckName": deckInfo[0], "modelName": deckInfo[1], "fields": {deckInfo[2]: term, deckInfo[3]: reading, deckInfo[4]: defs.replace("\n", "<br>"), deckInfo[5]: source, deckInfo[7]: book}, "options": {"allowDuplicate": False, "duplicateScope": "deck", "duplicateScopeOptions": {"deckName": deckInfo[0], "checkChildren": True, "checkAllModels": True}}, "tags": ["Kindle2Anki"], "audio": [{"filename": "{} - {}.mp3".format(reading, term),"url": "https://assets.languagepod101.com/dictionary/japanese/audiomp3.php?kanji={}&kana={}".format(term, reading), "fields": [deckInfo[6]]}]}}}
     else:
-        print("Warning! Card created without audio: ", term)
+        print(" Warning! No audio avaiable: ", term)
         if book == 0:
             return {"action": "addNote", "version": 6, "params": {"note":{"deckName": deckInfo[0], "modelName": deckInfo[1], "fields": {deckInfo[2]: term, deckInfo[3]: reading, deckInfo[4]: defs.replace("\n", "<br>"), deckInfo[5]: source}, "options": {"allowDuplicate": False, "duplicateScope": "deck", "duplicateScopeOptions": {"deckName": deckInfo[0], "checkChildren": True, "checkAllModels": True}}, "tags": ["Kindle2Anki"]}}}
         else:
@@ -205,16 +211,16 @@ def invoke(params, term="error"):
         if len(response) == 2:
             if response['error'] is None:
                 cntCards += 1
-                print(cntCards, "Success:   ", term)
+                print(" ", cntCards, "Success:   ", term)
             elif response['error'] == 'cannot create note because it is a duplicate':
-                print("Fail!    Note is a duplicate: ", term)
+                print(" Fail!    Note is a duplicate: ", term)
             else:
                 raise Exception
         else:
             raise Exception
     except:
         historyError.append(term)
-        print("Fail!    Failed to add: ", term)
+        print(" Fail!    Failed to add: ", term)
 
 def deconjug(term, mode=0):
     tkTerm = TKZR.tokenize(term)
@@ -261,11 +267,35 @@ for i in range(len(dbWords)):
         dict_DBtermsRev2[dbWords[i][0]] = dbWords[i][2]
         term_listS.appendleft(dbWords[i][2])
         term_listW.appendleft(dbWords[i][1])
+        timestampsDB[dbWords[i][0]] = dbWords[i][5]
+
+for i in range(len(dbSource)):
+    try:
+        if dbSource[i][2] not in wordCountNew:
+            wordCountNew[dbSource[i][2]] = 0
+        if dbSource[i][2] in timestamps:
+            if timestampsDB[dbSource[i][1]] > timestamps[dbSource[i][2]]:
+                timestamps[dbSource[i][2]] = timestampsDB[dbSource[i][1]]
+        else:
+            timestamps[dbSource[i][2]] = timestampsDB[dbSource[i][1]]
+            config["timestamps"][dbSource[i][2]] = 0
+    except:
+        pass
 
 for i in range(len(dbSource)):
     if dbSource[i][2] in wordCount and dbSource[i][2] in wordCountAdded:
         wordCount[dbSource[i][2]] += 1
+        try:
+            if timestampsDB[dbSource[i][1]] > config["timestamps"][dbSource[i][2]]:
+                wordCountNew[dbSource[i][2]] += 1
+        except:
+            pass
     else:
+        try:
+            if timestampsDB[dbSource[i][1]] > config["timestamps"][dbSource[i][2]]:
+                wordCountNew[dbSource[i][2]] += 1
+        except:
+            pass
         wordCount[dbSource[i][2]] = 1
         wordCountAdded[dbSource[i][2]] = 0
     if dbSource[i][2] not in book_listDB:
@@ -276,10 +306,14 @@ for i in range(len(dbSource)):
         stem2 = dict_DBtermsRev2[dbSource[i][1]]
         if tmpWords == None:
             wordCountAdded[dbSource[i][2]] += 1
+            if timestampsDB[dbSource[i][1]] > config["timestamps"][dbSource[i][2]]:
+                wordCountNew[dbSource[i][2]] -= 1
         elif (tmpWords[0] in history) or (stem in history) or (stem2 in history) or (tmpWords[0] in historyError) or (stem in historyError) or (stem2 in historyError):
             wordCountAdded[dbSource[i][2]] += 1
+            if timestampsDB[dbSource[i][1]] > config["timestamps"][dbSource[i][2]]:
+                wordCountNew[dbSource[i][2]] -= 1
     except:
-        continue
+        pass
 
 for i in range(len(dbBooks)):
     if dbBooks[i][3] == "ja":
@@ -299,17 +333,31 @@ def pickBook():
     global history
     global historyError
     global cntCards
-    print()
+    onlyNew = False
+    print("\n Words:\t\tTotal number of words from that specific book on Kindle's database\n Avaiable:\tTotal number of words from that specific book not yet processed by this script\n New:\t\tTotal number of new words from that specific book on Kindle's database compared to the last run")
+    print("\n | ID\t| WORDS\t\t| AVAIABLE\t| NEW\t| BOOK NAME")
     for i in range(len(book_list)):
-        print("id:",i,"\t|","Words:",wordCount[dict_DBBooks[book_list[i]]],"\t|","New:",(wordCount[dict_DBBooks[book_list[i]]] - wordCountAdded[dict_DBBooks[book_list[i]]]), "\t|",book_list[i])
-    bookName = book_list[int(input("\nEnter the id of the book to mine from: "))]
+        print(" |", i," \t|",wordCount[dict_DBBooks[book_list[i]]]," \t\t|",(wordCount[dict_DBBooks[book_list[i]]] - wordCountAdded[dict_DBBooks[book_list[i]]]), "    \t|", wordCountNew[dict_DBBooks[book_list[i]]], " \t|",book_list[i])
+    bookName = book_list[int(input("\n Enter the id of the book to mine from: "))]
     book = dict_DBBooks[bookName]
-    numCards = int(input("\nEnter the number of cards to added, or 0 to try to add all avaiable: "))
-    if numCards <= 0:
+    numCards = int(input("\n Enter the number of cards to added, 0 to add all avaiable or -1 to mine only from the new words: "))
+    if numCards == 0:
         numCards = 99999
+    if numCards == -1:
+        onlyNew = True
+        numCards = int(input("\n Enter how many of the new words you want to mine, or 0 to add all avaiable: "))
+        if numCards == 0:
+            numCards = 99999
     for i in range(len(dbSource)):
         if dbSource[i][2] == book:
-            dict_DBsource[dbSource[i][1]] = dbSource[i][5]
+            if onlyNew:
+                if dbSource[i][2] in config["timestamps"]:
+                    if timestampsDB[dbSource[i][1]] > config["timestamps"][dbSource[i][2]]:
+                        dict_DBsource[dbSource[i][1]] = dbSource[i][5]
+                else:
+                    break
+            else:
+                dict_DBsource[dbSource[i][1]] = dbSource[i][5]
     for j in range(len(term_listW)):
         if dict_DBterms[term_listW[j]] in dict_DBsource:
             try:
@@ -358,16 +406,19 @@ def pickBook():
                                     invoke(card, entries[0][0])
                                     history.append(term_listW[j])
                         else:
-                            print("Fail!    Frequency rank > {} or no frequency avaiable: ".format(freqMax), tmpList[0])
+                            print(" Fail!    Frequency rank > {} or no frequency avaiable: ".format(freqMax), tmpList[0])
             except KeyError:
-                print("Fail!    No entry avaiable for: ", term_listW[j])
+                print(" Fail!    No entry avaiable for: ", term_listW[j])
                 historyError.append(term_listW[j])
 
 pickBook()
 
+config["timestamps"] = timestamps
+with open("app_files/config.json", "w", encoding="utf-8") as file:
+        json.dump(config, file, ensure_ascii=False)
 with open("app_files/added.json", "w", encoding="utf-8") as file:
     json.dump(history, file, ensure_ascii=False)
 with open("app_files/errorHistory.json", "w", encoding="utf-8") as file:
     json.dump(historyError, file, ensure_ascii=False)
 
-endVar = input("\nAdded cards: {}\n\nEnter 'OK' to close the script: ".format(cntCards))
+endVar = input("\n Added cards: {}\n\n Enter 'OK' to close the script: ".format(cntCards))
