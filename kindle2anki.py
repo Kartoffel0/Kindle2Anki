@@ -338,9 +338,9 @@ def pickBook():
     print("\n | ID\t| WORDS\t\t| AVAIABLE\t| NEW\t| BOOK NAME")
     for i in range(len(book_list)):
         print(" |", i," \t|",wordCount[dict_DBBooks[book_list[i]]]," \t\t|",(wordCount[dict_DBBooks[book_list[i]]] - wordCountAdded[dict_DBBooks[book_list[i]]]), "    \t|", wordCountNew[dict_DBBooks[book_list[i]]], " \t|",book_list[i])
-    bookName = book_list[int(input("\n Enter the id of the book to mine from: "))]
+    bookName = book_list[int(input("\n Enter the ID of the book to mine from: "))]
     book = dict_DBBooks[bookName]
-    numCards = int(input("\n Enter the number of cards to added, 0 to add all avaiable or -1 to mine only from the new words: "))
+    numCards = int(input("\n Enter the number of cards to be added, 0 to add all avaiable or -1 to mine only from the new words: "))
     if numCards == 0:
         numCards = 99999
     if numCards == -1:
