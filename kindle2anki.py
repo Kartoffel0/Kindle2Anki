@@ -211,7 +211,7 @@ def invoke(params, term="error"):
         if len(response) == 2:
             if response['error'] is None:
                 cntCards += 1
-                print(" ", cntCards, "Success:   ", term)
+                print("", cntCards, "Success:   ", term)
             elif response['error'] == 'cannot create note because it is a duplicate':
                 print(" Fail!    Note is a duplicate: ", term)
             else:
