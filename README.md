@@ -4,11 +4,9 @@
 A simple Python script to create Anki cards for Japanese words from Kindle's Vocab-Builder and Yomichan dictionaries
 
 # Features
-- The script generates a ```Word, Reading, Definition, Sentence, Audio, BookName``` Anki card with definitions from how many Yomichan dictionaries you want and audio from JapanesePod
-- You can specify which book you want to generate cards from and set a limit to how many cards the script will create
-- You can specify the maximum frequency rank for the created cards, the script will ignore any words with a rank inferior to that
-- The script will only try to create a card for a specific word once, if you delete a faulty card it will not be created again on the next run.
-- The script uses your existing anki templates, you can customize the cards look however you want
+- Fully automatic ```Word, Reading, Definition, Sentence, Audio, BookName``` Anki card creation with definitions from how many Yomichan dictionaries you want and audio from JapanesePod
+- Manual selection of which book the script will mine the words from, the amount of cards to be created and the minimum frequency rank a word needs to have in order to be added
+- No need to import any APKG files as the cards are created using AnkiCOnnect
 
 ## Screenshots
 <table>
@@ -20,45 +18,31 @@ A simple Python script to create Anki cards for Japanese words from Kindle's Voc
   </tr>
  </table>
 
-# Requirements
-This script requires you to have Kindle's Vocab-Builder active
-- ```Settings > Reading Options > Vocabulary Builder```
-- ```設定 > 読書オプション > 単語帳```
-
-AnkiConnect
-- https://ankiweb.net/shared/info/2055492159
-
-SudachiPy
-- ```pip install sudachipy sudachidict_full```
-
-This script utilizes [Yomichan dictionaries](https://github.com/FooSoft/yomichan#dictionaries) and [ranked frequency lists](https://drive.google.com/drive/folders/1g1drkFzokc8KNpsPHoRmDJ4OtMTWFuXi)
-#### The script is not compatible with multiple-frequency frequency lists, please use one with only 1 frequency per word
-
 # Installation
-- Download the latest [release](https://github.com/Kartoffel0/Kindle2Anki/releases) and extract the file somewhere
-
-Or
+- Make sure Kindle's Vocab Builder is active on
+```Settings > Reading Options > Vocabulary Builder```or
+```設定 > 読書オプション > 単語帳```
+- Install SudachiPy
+```pip install sudachipy sudachidict_full```
+- Install [AnkiConnect](https://ankiweb.net/shared/info/2055492159) if you don't have it already installed
 - Clone this repository
 
 # Usage
-#### This script uses AnkiConnect, make sure you have Anki running before you run the script
-- plug your kindle into your computer
-- grab the vocab.db file from your kindle's storage by going to ```system/vocabulary/```, or by searching for "vocab.db", and paste it in the same folder as the Kindle2Anki.py file
+### This script utilizes AnkiConnect, make sure you have Anki running on the background before you run the script
+- Plug your kindle into your computer and grab the vocab.db file from its storage by going to ```system/vocabulary/```, or by searching for "vocab.db", and paste it in the same folder as the Kindle2Anki.py file
 - Run the script
+- Choose the book you want to mine from when prompted to
+- Choose how many cards you want the script to generate when prompted to
+- Wait for it to finish running and enter "OK" to close the script when prompted to
 
 ### First run setup
 - You'll have to install your dictionaries and frequency lists, make sure you have all of them in the same folder as the Kindle2Anki.py file
 - The script is not compatible with multiple-frequency frequency lists, please use one with only 1 frequency per word
 - Be careful when entering your deck and card info, any mistypes will result in the script not working properly
-#### You will only have to inform this once, on the next run you'll not be asked for the same info again
-
-- Choose the book you want to mine from
-- Choose how many cards you want the script to generate
-- Wait for it to finish and when asked enter "OK" to close the script
 
 ## Note that:
+- This script will only create cards for japanese words
+- This script will not generate any duplicate cards
+- The cards are generated automatically, flaws are expected ~~even more with kindle's shitty text parser~~
+- This script will only try to create a card for a specific word once, if you delete a faulty card it will not be created again on the next run. As you run the script more times the amount of faulty cards is expected to diminish
 - The indicated number of new cards is somewhat off most of the time, it is only a visual indicator and don't actually affect the number of cards generated
-- The script will only create cards for japanese words
-- The script will not generate duplicate cards
-- The cards are generated automatically, flaws are expected(even more with kindle's shitty text parser)
-- The script will only try to create a card for a specific word once, if you delete a faulty card it will not be created again on the next run. As you run the script more times the amount of faulty cards is expected to diminish
