@@ -7,6 +7,7 @@ import urllib.request
 import re
 import sqlite3
 from collections import deque
+from datetime import datetime
 
 """
 If you run into any problems while trying to use this script 
@@ -53,7 +54,7 @@ configFile = open("app_files/config.json", encoding="utf-8")
 config = json.load(configFile)
 
 if "bookName" not in config and config["first_run"] == 0:
-    bookOpt = int(input("\n Would you like to add the name of the book you're mining from to your cards?\n Enter 1 to confirm or 0 to decline: "))
+    bookOpt = int(input("\n Would you like to add the name of the book you're mining from to your cards?\n Enter 1 to confirm or 0 to decline:\n "))
     if bookOpt == 0:
         config["bookName"] = 0
         with open("app_files/config.json", "w", encoding="utf-8") as file:
@@ -133,38 +134,38 @@ def add_freqList(freqN):
 print(" Kindle2Anki - https://github.com/Kartoffel0/Kindle2Anki")
 if config["first_run"] == 1:
     print("\n This will only be asked once,\n on the next run you'll not have to inform everything again.")
-    dict_Num = int(input("\n Please inform how many dictionaries you want to add: "))
+    dict_Num = int(input("\n Please inform how many dictionaries you want to add:\n "))
     print("\n Ensure the zips are on the same directory as this script")
     config["dictNum"] = dict_Num
     for i in range(dict_Num):
-        with zipfile.ZipFile("{}".format(input("\n Enter the filename for your {}° dictionary: ".format(i+1))), 'r') as zip_ref:
+        with zipfile.ZipFile("{}".format(input("\n Enter the filename for your {}° dictionary:\n ".format(i+1))), 'r') as zip_ref:
             zip_ref.extractall("app_files/{}".format(i))
         appendDict2()
         add_dict(i)
-    freqNum = int(input("\n This script don't support multi frequency per word frequency lists,\n make sure the frequency list you'll add has only one frequency per word\n\n Please inform how many frequency lists you want to add,\n you have to add at least one: "))
+    freqNum = int(input("\n This script don't support multi frequency per word frequency lists,\n make sure the frequency list you'll add has only one frequency per word\n\n Please inform how many frequency lists you want to add,\n you have to add at least one:\n "))
     for j in range(freqNum):
-        with zipfile.ZipFile("{}".format(input("\n Enter the filename for your {}° frequency list: ".format(j+1))), 'r') as zip_ref:
+        with zipfile.ZipFile("{}".format(input("\n Enter the filename for your {}° frequency list:\n ".format(j+1))), 'r') as zip_ref:
             zip_ref.extractall("app_files/freq/{}".format(j))
         appendDict()
         add_freqList(j)
-    freqMax = int(input("\n Please inform the maximum frequency limit\n any words with a frequency rank superior to\n that will not be processed: "))
+    freqMax = int(input("\n Please inform the maximum frequency limit\n any words with a frequency rank superior to\n that will not be processed:\n "))
     config["freqMax"] = freqMax
     config["first_run"] = 0
-    deck = input("\n Please inform the name of the deck(!!!case sensitive!!!) where you want the cards to be added: ")
+    deck = input("\n Please inform the name of the deck(!!!case sensitive!!!) where you want the cards to be added:\n ")
     config["deckName"] = deck
-    cardType = input("\n Please inform the card type(!!!case sensitive!!!) you want to use as template for the added cards: ")
+    cardType = input("\n Please inform the card type(!!!case sensitive!!!) you want to use as template for the added cards:\n ")
     config["cardType"] = cardType
-    termField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Word' to be: ")
+    termField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Word' to be:\n ")
     config["termField"] = termField
-    readField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Reading' to be: ")
+    readField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Reading' to be:\n ")
     config["readField"] = readField
-    dictField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Definitions' to be: ")
+    dictField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Definitions' to be:\n ")
     config["dictField"] = dictField
-    sentField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Sentence' to be: ")
+    sentField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Sentence' to be:\n ")
     config["sentField"] = sentField
-    audioField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Audio' to be: ")
+    audioField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Audio' to be:\n ")
     config["audioField"] = audioField
-    nameField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Book Name' to be\n Enter 0 if you don't want to add the book name to your cards: ")
+    nameField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Book Name' to be\n Enter 0 if you don't want to add the book name to your cards:\n ")
     if nameField != 0:
         config["bookName"] = 1
         config["bookField"] = nameField
@@ -333,19 +334,23 @@ def pickBook():
     global history
     global historyError
     global cntCards
+    global book
     onlyNew = False
-    print("\n Words:\t\tTotal number of words from that specific book on Kindle's database\n Avaiable:\tTotal number of words from that specific book not yet processed by this script\n New:\t\tTotal number of new words from that specific book on Kindle's database compared to the last run")
-    print("\n | ID\t| WORDS\t\t| AVAIABLE\t| NEW\t| BOOK NAME")
+    print("\n Words:\t\tTotal number of words from that book on Kindle's database\n Avaiable:\tTotal amount of those words not yet processed by this script\n New:\t\tTotal amount of those words that were added since the indicated 'last mined from' date")
+    print("\n | ID\t| WORDS\t\t| AVAIABLE\t| NEW \t(YY/MM/DD) | BOOK NAME")
     for i in range(len(book_list)):
-        print(" |", i," \t|",wordCount[dict_DBBooks[book_list[i]]]," \t\t|",(wordCount[dict_DBBooks[book_list[i]]] - wordCountAdded[dict_DBBooks[book_list[i]]]), "    \t|", wordCountNew[dict_DBBooks[book_list[i]]], " \t|",book_list[i])
-    bookName = book_list[int(input("\n Enter the ID of the book to mine from: "))]
+        if dict_DBBooks[book_list[i]] in config["timestamps"] and config["timestamps"][dict_DBBooks[book_list[i]]] != 0:
+            print(" |", i," \t|",wordCount[dict_DBBooks[book_list[i]]]," \t\t|",(wordCount[dict_DBBooks[book_list[i]]] - wordCountAdded[dict_DBBooks[book_list[i]]]), "    \t|", wordCountNew[dict_DBBooks[book_list[i]]], " \t({})".format(str(datetime.fromtimestamp(config["timestamps"][dict_DBBooks[book_list[i]]]/1000)).split(" ")[0].replace("-", "/")[2:]), "|",book_list[i])
+        else:
+            print(" |", i," \t|",wordCount[dict_DBBooks[book_list[i]]]," \t\t|",(wordCount[dict_DBBooks[book_list[i]]] - wordCountAdded[dict_DBBooks[book_list[i]]]), "    \t|", wordCountNew[dict_DBBooks[book_list[i]]], " \t(00/00/00)", "|",book_list[i])
+    bookName = book_list[int(input("\n Enter the ID of the book to mine from:\n "))]
     book = dict_DBBooks[bookName]
-    numCards = int(input("\n Enter the number of cards to be added, 0 to add all avaiable or -1 to mine only from the new words: "))
+    numCards = int(input("\n Enter the number of cards to be added:\n You can also enter 0 to add all avaiable or -1 to mine from the new words only:\n "))
     if numCards == 0:
         numCards = 99999
     if numCards == -1:
         onlyNew = True
-        numCards = int(input("\n Enter how many of the new words you want to mine, or 0 to add all avaiable: "))
+        numCards = int(input("\n Enter how many of the new words you want to mine, or 0 to add all avaiable:\n "))
         if numCards == 0:
             numCards = 99999
     for i in range(len(dbSource)):
@@ -355,7 +360,7 @@ def pickBook():
                     if timestampsDB[dbSource[i][1]] > config["timestamps"][dbSource[i][2]]:
                         dict_DBsource[dbSource[i][1]] = dbSource[i][5]
                 else:
-                    break
+                    dict_DBsource[dbSource[i][1]] = dbSource[i][5]
             else:
                 dict_DBsource[dbSource[i][1]] = dbSource[i][5]
     for j in range(len(term_listW)):
@@ -413,12 +418,14 @@ def pickBook():
 
 pickBook()
 
-config["timestamps"] = timestamps
-with open("app_files/config.json", "w", encoding="utf-8") as file:
-        json.dump(config, file, ensure_ascii=False)
 with open("app_files/added.json", "w", encoding="utf-8") as file:
     json.dump(history, file, ensure_ascii=False)
 with open("app_files/errorHistory.json", "w", encoding="utf-8") as file:
     json.dump(historyError, file, ensure_ascii=False)
 
-endVar = input("\n Added cards: {}\n\n Enter 'OK' to close the script: ".format(cntCards))
+if int(input("\n Added cards: {}\n Enter 0 to update the 'last mined from' date and reset the 'new' card counter, or -1 keep it as it is now:\n ".format(cntCards))) == 0:
+    config["timestamps"][book] = timestamps[book]
+    with open("app_files/config.json", "w", encoding="utf-8") as file:
+            json.dump(config, file, ensure_ascii=False)
+
+endVar = input(" Done!\n\n Enter 'OK' to close the script:\n ")
