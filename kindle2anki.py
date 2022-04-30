@@ -221,7 +221,8 @@ def invoke(params, term="error"):
             requestJson = json.dumps(params).encode('utf-8')
         else:
             params["params"]["note"]["options"]["duplicateScope"] = "collection"
-            params["params"]["note"]["options"].pop("duplicateScopeOptions", None)
+            params["params"]["note"]["options"]["duplicateScopeOptions"].pop("deckName", None)
+            params["params"]["note"]["options"]["duplicateScopeOptions"].pop("checkChildren", None)
             requestJson = json.dumps(params).encode('utf-8')
         response = json.load(urllib.request.urlopen(urllib.request.Request('http://localhost:8765', requestJson)))
         if len(response) == 2:
