@@ -67,6 +67,13 @@ if "bookName" not in config and config["first_run"] == 0:
         with open("app_files/config.json", "w", encoding="utf-8") as file:
             json.dump(config, file, ensure_ascii=False)
         print("\n Done!")
+
+if "scope" not in config and config["first_run"] == 0:
+    defScope = int(input("\n Please inform where do you want the script to check for duplicates,\n enter 0 to check for them only on the deck you specified or 1 to check for them on your whole collection:\n "))
+    config["scope"] = "deck" if defScope == 0 else "collection"
+    with open("app_files/config.json", "w", encoding="utf-8") as file:
+        json.dump(config, file, ensure_ascii=False)
+    
 dict_name = config["dict_Names"]
 freqMax = config["freqMax"]
 try:
@@ -169,6 +176,8 @@ if config["first_run"] == 1:
     if nameField != 0:
         config["bookName"] = 1
         config["bookField"] = nameField
+    checkScope = int(input("\n Please inform where do you want the script to check for duplicates,\n enter 0 to check for them only on the deck you specified or 1 to check for them on your whole collection:\n "))
+    config["scope"] = "deck" if checkScope == 0 else "collection"
     names = []
     for i in range(len(config["dict_Names"])):
         if config["dict_Names"][i] in names:
@@ -205,9 +214,15 @@ def newCard(deckInfo, term, reading, defs, source, book=0):
 def invoke(params, term="error"):
     global cntCards
     global historyError
+    global config
     time.sleep(3)
     try:
-        requestJson = json.dumps(params).encode('utf-8')
+        if config["scope"] == "deck":
+            requestJson = json.dumps(params).encode('utf-8')
+        else:
+            params["params"]["note"]["options"]["duplicateScope"] = "collection"
+            params["params"]["note"]["options"].pop("duplicateScopeOptions", None)
+            requestJson = json.dumps(params).encode('utf-8')
         response = json.load(urllib.request.urlopen(urllib.request.Request('http://localhost:8765', requestJson)))
         if len(response) == 2:
             if response['error'] is None:
