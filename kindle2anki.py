@@ -160,7 +160,7 @@ if config["first_run"] == 1:
     config["first_run"] = 0
     deck = input("\n Please inform the name of the deck(!!!case sensitive!!!) where you want the cards to be added:\n ")
     config["deckName"] = deck
-    cardType = input("\n Please inform the card type(!!!case sensitive!!!) you want to use as template for the added cards:\n ")
+    cardType = input("\n Please inform the Note Type(!!!case sensitive!!!) you want to use as template for the added cards:\n ")
     config["cardType"] = cardType
     termField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Word' to be:\n ")
     config["termField"] = termField
