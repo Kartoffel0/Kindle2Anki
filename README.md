@@ -37,7 +37,8 @@ A simple Python script to create Anki cards for Japanese words from Kindle's Voc
 
 ### First run setup
 - You'll have to install your dictionaries and frequency lists, make sure you have all of them in the same folder as the Kindle2Anki.py file
-- The script is not compatible with multiple-frequency frequency lists, please use one with only 1 frequency per word
+- The script is not compatible with Pitch Accent dictionaries
+- The script is also not compatible with multiple-frequency frequency lists, please use one with only 1 frequency per word
 - Be careful when entering your deck and card info, any mistypes will result in the script not working properly
 
 ## Note that:
