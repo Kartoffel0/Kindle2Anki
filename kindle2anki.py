@@ -441,18 +441,18 @@ def pickBook():
                                             entries.append(entry)  
                             if len(entries) == 0:
                                 for u in range(config["dictNum"]):
-                                if len(entries) == 0:
-                                    entry = lookup(term_listW[j], dict_DBsource[dict_DBterms[term_listW[j]]], 0, u)
-                                    if entry != None:
-                                        if (entry[0] in history) or (term_listW[j] in history) or (term_listS[j] in history) or (entry[0] in historyError) or (term_listW[j] in historyError) or (term_listS[j] in historyError):
-                                            continue
-                                        else:
-                                            entries.append(entry)
-                                else:
-                                    entry = lookup(entries[0][0], dict_DBsource[dict_DBterms[term_listW[j]]], 0, u)
-                                    if entry != None:
-                                        if entry[1] == entries[0][1]:
-                                            entries.append(entry)  
+                                    if len(entries) == 0:
+                                        entry = lookup(term_listW[j], dict_DBsource[dict_DBterms[term_listW[j]]], 0, u)
+                                        if entry != None:
+                                            if (entry[0] in history) or (term_listW[j] in history) or (term_listS[j] in history) or (entry[0] in historyError) or (term_listW[j] in historyError) or (term_listS[j] in historyError):
+                                                continue
+                                            else:
+                                                entries.append(entry)
+                                    else:
+                                        entry = lookup(entries[0][0], dict_DBsource[dict_DBterms[term_listW[j]]], 0, u)
+                                        if entry != None:
+                                            if entry[1] == entries[0][1]:
+                                                entries.append(entry)  
                             else:
                                 furigana = ''
                                 definition = '<div style="text-align: left;"><ol>'
