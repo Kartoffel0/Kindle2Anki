@@ -439,7 +439,7 @@ def pickBook():
                                     if entry != None:
                                         if entry[1] == entries[0][1]:
                                             entries.append(entry)  
-                            if len(entries) == 0:
+                            if len(entries) == 0 or len(entries) < config["dictNum"]:
                                 for u in range(config["dictNum"]):
                                     if len(entries) == 0:
                                         entry = lookup(term_listW[j], dict_DBsource[dict_DBterms[term_listW[j]]], 0, u)
@@ -451,9 +451,10 @@ def pickBook():
                                     else:
                                         entry = lookup(entries[0][0], dict_DBsource[dict_DBterms[term_listW[j]]], 0, u)
                                         if entry != None:
-                                            if entry[1] == entries[0][1]:
-                                                entries.append(entry)  
-                            else:
+                                            if entry[1] == entries[0][1] or entry[0] == entries[0][1]:
+                                                if entry not in entries:
+                                                    entries.append(entry)  
+                            if len(entries) > 0:
                                 furigana = ''
                                 definition = '<div style="text-align: left;"><ol>'
                                 for o in entries:
