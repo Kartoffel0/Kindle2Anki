@@ -266,29 +266,22 @@ def deconjug(term, mode=0):
     else:
         return tkTerm[0].normalized_form()
         
-def lookup(term, source, exactMatch=0, dictN=0):
-    if exactMatch == 1:
+def lookup(term, source, dictN=0):
+    try:
+        definition = dicts[dictN][term]
+        return [term, definition[1], definition[5][0], source.strip(), dictN]
+    except KeyError:
         try:
-            definition = dicts[dictN][term]
-            return [term, definition[1], definition[5][0], source.strip(), dictN]
-        except KeyError:
-            return None
-    else:
-        try:
-            definition = dicts[dictN][term]
-            return [term, definition[1], definition[5][0], source.strip(), dictN]
+            termTK = deconjug(term)
+            definition = dicts[dictN][termTK]
+            return [termTK, definition[1], definition[5][0], source.strip(), dictN]
         except KeyError:
             try:
-                termTK = deconjug(term)
+                termTK = deconjug(term, 1)
                 definition = dicts[dictN][termTK]
                 return [termTK, definition[1], definition[5][0], source.strip(), dictN]
             except KeyError:
-                try:
-                    termTK = deconjug(term, 1)
-                    definition = dicts[dictN][termTK]
-                    return [termTK, definition[1], definition[5][0], source.strip(), dictN]
-                except KeyError:
-                    return None
+                return None
 
 sqliteConnection = sqlite3.connect('vocab.db')
 
@@ -428,32 +421,17 @@ def pickBook():
                             entries = []
                             for u in range(config["dictNum"]):
                                 if len(entries) == 0:
-                                    entry = lookup(term_listW[j], dict_DBsource[dict_DBterms[term_listW[j]]], 1, u)
+                                    entry = lookup(term_listW[j], dict_DBsource[dict_DBterms[term_listW[j]]], u)
                                     if entry != None:
                                         if (entry[0] in history) or (term_listW[j] in history) or (term_listS[j] in history) or (entry[0] in historyError) or (term_listW[j] in historyError) or (term_listS[j] in historyError):
                                             continue
                                         else:
                                             entries.append(entry)
                                 else:
-                                    entry = lookup(entries[0][0], dict_DBsource[dict_DBterms[term_listW[j]]], 1, u)
+                                    entry = lookup(entries[0][0], dict_DBsource[dict_DBterms[term_listW[j]]], u)
                                     if entry != None:
                                         if entry[1] == entries[0][1]:
-                                            entries.append(entry)  
-                            if len(entries) == 0 or len(entries) < config["dictNum"]:
-                                for u in range(config["dictNum"]):
-                                    if len(entries) == 0:
-                                        entry = lookup(term_listW[j], dict_DBsource[dict_DBterms[term_listW[j]]], 0, u)
-                                        if entry != None:
-                                            if (entry[0] in history) or (term_listW[j] in history) or (term_listS[j] in history) or (entry[0] in historyError) or (term_listW[j] in historyError) or (term_listS[j] in historyError):
-                                                continue
-                                            else:
-                                                entries.append(entry)
-                                    else:
-                                        entry = lookup(entries[0][0], dict_DBsource[dict_DBterms[term_listW[j]]], 0, u)
-                                        if entry != None:
-                                            if entry[1] == entries[0][1] or entry[0] == entries[0][1]:
-                                                if entry not in entries:
-                                                    entries.append(entry)  
+                                            entries.append(entry)   
                             if len(entries) > 0:
                                 furigana = ''
                                 definition = '<div style="text-align: left;"><ol>'
