@@ -430,7 +430,7 @@ def pickBook():
                                 else:
                                     entry = lookup(entries[0][0], dict_DBsource[dict_DBterms[term_listW[j]]], u)
                                     if entry != None:
-                                        if entry[1] == entries[0][1]:
+                                        if entry[1] == entries[0][1] or entry[0] == entries[0][1]:
                                             entries.append(entry)   
                             if len(entries) > 0:
                                 furigana = ''
