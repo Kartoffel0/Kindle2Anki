@@ -267,28 +267,35 @@ def deconjug(term, mode=0):
         return tkTerm[0].normalized_form()
         
 def lookup(term, source, dictN=0, exact=0):
-    if exact == 1:
-        try:
-            definition = dicts[dictN][term]
-            return [term, definition[1], definition[5][0], source.strip(), dictN]
-        except KeyError:
-            return None
+    if dictN == -1:
+        for d in range(config["dictNum"]):
+            tmpLP = lookup(term, source, d)
+            if tmpLP is not None:
+                return tmpLP
+        return None
     else:
-        try:
-            definition = dicts[dictN][term]
-            return [term, definition[1], definition[5][0], source.strip(), dictN]
-        except KeyError:
+        if exact == 1:
             try:
-                termTK = deconjug(term)
-                definition = dicts[dictN][termTK]
-                return [termTK, definition[1], definition[5][0], source.strip(), dictN]
+                definition = dicts[dictN][term]
+                return [term, definition[1], definition[5][0], source.strip(), dictN]
+            except KeyError:
+                return None
+        else:
+            try:
+                definition = dicts[dictN][term]
+                return [term, definition[1], definition[5][0], source.strip(), dictN]
             except KeyError:
                 try:
-                    termTK = deconjug(term, 1)
+                    termTK = deconjug(term)
                     definition = dicts[dictN][termTK]
                     return [termTK, definition[1], definition[5][0], source.strip(), dictN]
                 except KeyError:
-                    return None
+                    try:
+                        termTK = deconjug(term, 1)
+                        definition = dicts[dictN][termTK]
+                        return [termTK, definition[1], definition[5][0], source.strip(), dictN]
+                    except KeyError:
+                        return None
 
 sqliteConnection = sqlite3.connect('vocab.db')
 
@@ -345,7 +352,7 @@ for i in range(len(dbSource)):
     if dbSource[i][2] not in book_listDB:
         book_listDB.append(dbSource[i][2])
     try:
-        tmpWords = lookup(dict_DBtermsRev[dbSource[i][1]], dbSource[i][5])
+        tmpWords = lookup(dict_DBtermsRev[dbSource[i][1]], dbSource[i][5], -1)
         stem = dict_DBtermsRev[dbSource[i][1]]
         stem2 = dict_DBtermsRev2[dbSource[i][1]]
         if tmpWords == None:
@@ -409,7 +416,7 @@ def pickBook():
     for j in range(len(term_listW)):
         if dict_DBterms[term_listW[j]] in dict_DBsource:
             try:
-                tmpList = lookup(term_listW[j], dict_DBsource[dict_DBterms[term_listW[j]]])
+                tmpList = lookup(term_listW[j], dict_DBsource[dict_DBterms[term_listW[j]]], -1)
                 freqs = []
                 if tmpList != None:
                     subFreq = False
