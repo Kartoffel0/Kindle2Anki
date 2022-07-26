@@ -1,3 +1,4 @@
+from logging import exception
 import time
 import zipfile
 import os
@@ -32,117 +33,65 @@ sameBook = {}
 timestampsDB = {}
 wordCountNew = {}
 
-dictsFile = open("app_files/dicts.json", encoding="utf-8")
-dicts = json.load(dictsFile)
+def loadJson(filename, default):
+    try:
+        return json.load(open(f"{filename}.json", encoding="utf-8"))
+    except:
+        return default
 
-jpodFile = open("app_files/jpodFiles.json", encoding="utf-8")
-jpod = json.load(jpodFile)
-
-freqMainFile = open("app_files/mainFreq.json", encoding="utf-8")
-freqMain = json.load(freqMainFile)
-
-historyFile = open("app_files/added.json", encoding="utf-8")
-history = json.load(historyFile)
-
-historyFile3 = open("app_files/errorHistory.json", encoding="utf-8")
-historyError = json.load(historyFile3)
-
-freqListsFile = open("app_files/freqlists.json", encoding="utf-8")
-freqlists = json.load(freqListsFile)
-
-configFile = open("app_files/config.json", encoding="utf-8")
-config = json.load(configFile)
-
-if "bookName" not in config and config["first_run"] == 0:
-    bookOpt = int(input("\n Would you like to add the name of the book you're mining from to your cards?\n Enter 1 to confirm or 0 to decline:\n "))
-    if bookOpt == 0:
-        config["bookName"] = 0
-        with open("app_files/config.json", "w", encoding="utf-8") as file:
-            json.dump(config, file, ensure_ascii=False)
-        print("\n Done!\n")
-    else:
-        bookField = input('\n Please inform the field name(!!!case sensitive!!!) where you want the "Book Name" to be: ')
-        config["bookName"] = 1
-        config["bookField"] = bookField
-        with open("app_files/config.json", "w", encoding="utf-8") as file:
-            json.dump(config, file, ensure_ascii=False)
-        print("\n Done!")
-
-if "scope" not in config and config["first_run"] == 0:
-    defScope = int(input("\n Please inform where do you want the script to check for duplicates,\n enter 0 to check for them only on the deck you specified or 1 to check for them on your whole collection:\n "))
-    config["scope"] = "deck" if defScope == 0 else "collection"
-    with open("app_files/config.json", "w", encoding="utf-8") as file:
-        json.dump(config, file, ensure_ascii=False)
-
-if "freqField" not in config and config["first_run"] == 0:
-    freqField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Word Frequency' to be, or enter 0 if you don't want it on your cards:\n ")
-    config["freqField"] = freqField
-    with open("app_files/config.json", "w", encoding="utf-8") as file:
-        json.dump(config, file, ensure_ascii=False)
-    
-dict_name = config["dict_Names"]
-freqMax = config["freqMax"]
 try:
-    timestamps = config["timestamps"].copy()
+    jpod = json.load(open("app_files/jpodFiles.json", encoding="utf-8"))
 except:
-    timestamps, config["timestamps"] = {}, {}
+    print(" Japanesepod's avaiable audio database not found!\n Please download it from Kindle2Anki's github repository!")
+    jpod = []
+
+try:
+    freqMain = json.load(open("app_files/mainFreq.json", encoding="utf-8"))
+except:
+    freqMain = {}
+
+config = loadJson("app_files/config", {"first_run":1})
+dicts = loadJson("app_files/dicts", [])
+freqlists = loadJson("app_files/freqLists", [])
+history = loadJson("app_files/added", [])
+historyError = loadJson("app_files/errorHistory", [])
 
 def add_dict(dictN):
-    global dict_name
-    global dicts
-    global config
-    cnt = 0
+    dict = {}
     fileNames = os.listdir("app_files/{}".format(dictN))
-    for name in fileNames:
-        if name == "index.json":
-            dict1_IdFile = open("app_files/{}/index.json".format(dictN), encoding="utf-8")
-            dict1_Index = json.load(dict1_IdFile)
-            dict_name.append(dict1_Index["title"])
-            config["dict_Names"].append(dict1_Index["title"])
-        else:
-            cnt += 1
-    for i in range(1, cnt+1):
-        dictFile = open("app_files/{}/{}".format(dictN, fileNames[i]), encoding="utf-8")
-        data = json.load(dictFile)
+    dictName = json.load(open("app_files/{}/index.json".format(dictN), encoding="utf-8"))["title"]
+    fileNames.remove("index.json")
+    for i in fileNames:
+        data = json.load(open("app_files/{}/{}".format(dictN, i), encoding="utf-8"))
         for j in data:
-            if (j[0] in dicts[dictN]):
+            if (j[0] in dict):
                 try:
                     if j[1] == freqMain[j[0]]:
-                        dicts[dictN][j[0]] = j
+                        dict[j[0]] = j
                 except KeyError:
                     continue
             else:
-                dicts[dictN][j[0]] = j
-
-def appendDict():
-    global freqlists
-    freqlists.append({})
-
-def appendDict2():
-    global dicts
-    dicts.append({})  
+                dict[j[0]] = j
+    return [dictName, dict]
 
 def add_freqList(freqN):
-    global freqlists
-    cnt = 0
+    freqlist = {}
     fileNames = os.listdir("app_files/freq/{}".format(freqN))
-    for name in fileNames:
-        if name == "index.json":
-            continue
-        else:
-            cnt += 1
-    for i in range(1, cnt+1):
-        freqFile = open("app_files/freq/{}/{}".format(freqN, fileNames[i]), encoding="utf-8")
-        data = json.load(freqFile)
+    fileNames.remove("index.json")
+    for i in fileNames:
+        data = json.load(open("app_files/freq/{}/{}".format(freqN, i), encoding="utf-8"))
         for j in data:
             if type(j[2]) is dict:
                 if "frequency" in j[2]:
-                    freqlists[freqN][j[0]] = j[2]["frequency"]
+                    freqlist[j[0]] = j[2]["frequency"]
+            elif re.search("★*\(\d+\)", j[2]) is not None:
+                freqlist[j[0]] = j[2]
             else:
                 if re.search("/", str(j[2])):
-                    freqlists[freqN][j[0]] = int(j[2].split("/")[0])
+                    freqlist[j[0]] = int(j[2].split("/")[0])
                 else:
-                    freqlists[freqN][j[0]] = j[2]
+                    freqlist[j[0]] = j[2]
+    return freqlist
 
 print(" Kindle2Anki - https://github.com/Kartoffel0/Kindle2Anki")
 if config["first_run"] == 1:
@@ -153,16 +102,19 @@ if config["first_run"] == 1:
     for i in range(dict_Num):
         with zipfile.ZipFile("{}".format(input("\n Enter the filename for your {}° dictionary:\n ".format(i+1))), 'r') as zip_ref:
             zip_ref.extractall("app_files/{}".format(i))
-        appendDict2()
-        add_dict(i)
-    freqNum = int(input("\n This script don't support multi frequency per word frequency lists,\n make sure the frequency list you'll add has only one frequency per word\n\n Please inform how many frequency lists you want to add,\n you have to add at least one:\n "))
+        dict = add_dict(i)
+        config("dict_Names").append(dict[0])
+        dicts.append(dict[1])
+    freqNum = int(input("\n This script don't support multi frequency per word frequency lists,\n make sure the frequency list you'll add has only one frequency per word\n\n Please inform how many frequency lists you want to add:\n "))
     for j in range(freqNum):
         with zipfile.ZipFile("{}".format(input("\n Enter the filename for your {}° frequency list:\n ".format(j+1))), 'r') as zip_ref:
             zip_ref.extractall("app_files/freq/{}".format(j))
-        appendDict()
-        add_freqList(j)
-    freqMax = int(input("\n Please inform the maximum frequency limit\n any words with a frequency rank superior to\n that will not be processed:\n "))
-    config["freqMax"] = freqMax
+        freqlists.append(add_freqList(j))
+    if freqNum > 0:
+        freqMax = int(input("\n Please inform the maximum frequency limit\n any words with a frequency rank superior to\n that will not be processed, or 0 to not set a limit:\n "))
+        config["freqMax"] = freqMax
+    else:
+        config["freqMax"] = 0
     config["first_run"] = 0
     deck = input("\n Please inform the name of the deck(!!!case sensitive!!!) where you want the cards to be added:\n ")
     config["deckName"] = deck
@@ -204,38 +156,32 @@ if config["first_run"] == 1:
         json.dump(freqlists, file, ensure_ascii=False)
     print("\n Done!\n")
 
-def newCard(deckInfo, term, reading, defs, source, book=0, freqs=0):
+dict_name = config["dict_Names"]
+freqMax = config["freqMax"]
+try:
+    timestamps = config["timestamps"].copy()
+except:
+    timestamps, config["timestamps"] = {}, {}
+    
+def newCard(config, args):
     global jpod
-    tmpJpod = (reading+"_"+term)
+    tmpJpod = (args["reading"]+"_"+args["term"])
+    card = {"action": "addNote", "version": 6, "params": {"note":{"deckName": config["deckName"], "modelName": config["cardType"], "fields": {config["termField"]: args["term"], config["readField"]: args["reading"], config["dictField"]: args["definition"].replace("\n", "<br>"), config["sentField"]: args["sentence"]}, "options": {"allowDuplicate": False, "duplicateScope": "deck", "duplicateScopeOptions": {"deckName": config["deckName"], "checkChildren": True, "checkAllModels": True}}, "tags": ["Kindle2Anki"]}}}
     if tmpJpod in jpod:
-        if freqs == 0:
-            if book == 0:
-                return {"action": "addNote", "version": 6, "params": {"note":{"deckName": deckInfo[0], "modelName": deckInfo[1], "fields": {deckInfo[2]: term, deckInfo[3]: reading, deckInfo[4]: defs.replace("\n", "<br>"), deckInfo[5]: source}, "options": {"allowDuplicate": False, "duplicateScope": "deck", "duplicateScopeOptions": {"deckName": deckInfo[0], "checkChildren": True, "checkAllModels": True}}, "tags": ["Kindle2Anki"], "audio": [{"filename": "{} - {}.mp3".format(reading, term),"url": "https://assets.languagepod101.com/dictionary/japanese/audiomp3.php?kanji={}&kana={}".format(term, reading), "fields": [deckInfo[6]]}]}}}
-            else:
-                return {"action": "addNote", "version": 6, "params": {"note":{"deckName": deckInfo[0], "modelName": deckInfo[1], "fields": {deckInfo[2]: term, deckInfo[3]: reading, deckInfo[4]: defs.replace("\n", "<br>"), deckInfo[5]: source, deckInfo[7]: book}, "options": {"allowDuplicate": False, "duplicateScope": "deck", "duplicateScopeOptions": {"deckName": deckInfo[0], "checkChildren": True, "checkAllModels": True}}, "tags": ["Kindle2Anki"], "audio": [{"filename": "{} - {}.mp3".format(reading, term),"url": "https://assets.languagepod101.com/dictionary/japanese/audiomp3.php?kanji={}&kana={}".format(term, reading), "fields": [deckInfo[6]]}]}}}
-        else:
-            if book == 0:
-                return {"action": "addNote", "version": 6, "params": {"note":{"deckName": deckInfo[0], "modelName": deckInfo[1], "fields": {deckInfo[2]: term, deckInfo[3]: reading, deckInfo[4]: defs.replace("\n", "<br>"), deckInfo[5]: source, deckInfo[8]: freqs}, "options": {"allowDuplicate": False, "duplicateScope": "deck", "duplicateScopeOptions": {"deckName": deckInfo[0], "checkChildren": True, "checkAllModels": True}}, "tags": ["Kindle2Anki"], "audio": [{"filename": "{} - {}.mp3".format(reading, term),"url": "https://assets.languagepod101.com/dictionary/japanese/audiomp3.php?kanji={}&kana={}".format(term, reading), "fields": [deckInfo[6]]}]}}}
-            else:
-                return {"action": "addNote", "version": 6, "params": {"note":{"deckName": deckInfo[0], "modelName": deckInfo[1], "fields": {deckInfo[2]: term, deckInfo[3]: reading, deckInfo[4]: defs.replace("\n", "<br>"), deckInfo[5]: source, deckInfo[7]: book, deckInfo[8]: freqs}, "options": {"allowDuplicate": False, "duplicateScope": "deck", "duplicateScopeOptions": {"deckName": deckInfo[0], "checkChildren": True, "checkAllModels": True}}, "tags": ["Kindle2Anki"], "audio": [{"filename": "{} - {}.mp3".format(reading, term),"url": "https://assets.languagepod101.com/dictionary/japanese/audiomp3.php?kanji={}&kana={}".format(term, reading), "fields": [deckInfo[6]]}]}}}
+        card["params"]["note"]["audio"] = [{"filename": "{} - {}.mp3".format(args["reading"], args["term"]),"url": "https://assets.languagepod101.com/dictionary/japanese/audiomp3.php?kanji={}&kana={}".format(args["term"], args["reading"]), "fields": [config["audioField"]]}]
     else:
-        print(" Warning! No audio avaiable: ", term)
-        if freqs == 0:
-            if book == 0:
-                return {"action": "addNote", "version": 6, "params": {"note":{"deckName": deckInfo[0], "modelName": deckInfo[1], "fields": {deckInfo[2]: term, deckInfo[3]: reading, deckInfo[4]: defs.replace("\n", "<br>"), deckInfo[5]: source}, "options": {"allowDuplicate": False, "duplicateScope": "deck", "duplicateScopeOptions": {"deckName": deckInfo[0], "checkChildren": True, "checkAllModels": True}}, "tags": ["Kindle2Anki"]}}}
-            else:
-                return {"action": "addNote", "version": 6, "params": {"note":{"deckName": deckInfo[0], "modelName": deckInfo[1], "fields": {deckInfo[2]: term, deckInfo[3]: reading, deckInfo[4]: defs.replace("\n", "<br>"), deckInfo[5]: source, deckInfo[7]: book}, "options": {"allowDuplicate": False, "duplicateScope": "deck", "duplicateScopeOptions": {"deckName": deckInfo[0], "checkChildren": True, "checkAllModels": True}}, "tags": ["Kindle2Anki"]}}}
-        else:
-            if book == 0:
-                return {"action": "addNote", "version": 6, "params": {"note":{"deckName": deckInfo[0], "modelName": deckInfo[1], "fields": {deckInfo[2]: term, deckInfo[3]: reading, deckInfo[4]: defs.replace("\n", "<br>"), deckInfo[5]: source, deckInfo[8]: freqs}, "options": {"allowDuplicate": False, "duplicateScope": "deck", "duplicateScopeOptions": {"deckName": deckInfo[0], "checkChildren": True, "checkAllModels": True}}, "tags": ["Kindle2Anki"]}}}
-            else:
-                return {"action": "addNote", "version": 6, "params": {"note":{"deckName": deckInfo[0], "modelName": deckInfo[1], "fields": {deckInfo[2]: term, deckInfo[3]: reading, deckInfo[4]: defs.replace("\n", "<br>"), deckInfo[5]: source, deckInfo[7]: book, deckInfo[8]: freqs}, "options": {"allowDuplicate": False, "duplicateScope": "deck", "duplicateScopeOptions": {"deckName": deckInfo[0], "checkChildren": True, "checkAllModels": True}}, "tags": ["Kindle2Anki"]}}}
+        print(" Warning!    No audio avaiable: ", args["term"])
+    if "frequency" in args:
+        card["params"]["note"]["fields"][config["freqField"]] = args["frequency"]
+    if "bookName" in args:
+        card["params"]["note"]["fields"][config["bookField"]] = args["bookName"]
+    return card
 
 def invoke(params, term="error"):
     global cntCards
     global historyError
     global config
-    time.sleep(3)
+    time.sleep(1)
     try:
         if config["scope"] == "deck":
             requestJson = json.dumps(params).encode('utf-8')
@@ -419,17 +365,22 @@ def pickBook():
                 tmpList = lookup(term_listW[j], dict_DBsource[dict_DBterms[term_listW[j]]], -1)
                 freqs = []
                 if tmpList != None:
-                    subFreq = False
+                    if freqMax == 0:
+                        subFreq = True
+                    else:
+                        subFreq = False
                     if (tmpList[0] in history) or (term_listW[j] in history) or (term_listS[j] in history) or (tmpList[0] in historyError) or (term_listW[j] in historyError) or (term_listS[j] in historyError):
                         continue
                     for q in range(len(freqlists)):
                         try:
                             tmpTerm = float(freqlists[q][tmpList[0]])
-                            if tmpTerm <= freqMax:
+                            if tmpTerm <= freqMax or subFreq == True:
                                 subFreq = True
                                 freqs.append(tmpTerm)
                         except KeyError:
                             continue
+                    if len(freqs) == 0:
+                        freqs.append(123456789)
                     if cntCards < numCards:
                         if subFreq:
                             entries = []
@@ -469,28 +420,18 @@ def pickBook():
                                         furigana = o[1]
                                     definition += '<li><i>({})</i>{}</li>'.format(dict_name[o[4]], o[2])
                                 definition += '</ol></div>'
+                                args = {"term": entries[0][0], "reading": furigana, "definition": definition, "sentence": entries[0][3]}
+                                if config["bookName"] != 0:
+                                    args["bookName"] = bookName.rstrip("*")
                                 if config["freqField"] != 0:
-                                    if config["bookName"] == 0:
-                                        card = newCard([config["deckName"], config["cardType"], config["termField"], config["readField"], config["dictField"], config["sentField"], config["audioField"], config["bookField"], config["freqField"]], entries[0][0], furigana, definition, entries[0][3], 0, str(int(freqs[0])))
-                                        invoke(card, entries[0][0])
-                                        history.append(term_listW[j])
-                                    else:
-                                        card = newCard([config["deckName"], config["cardType"], config["termField"], config["readField"], config["dictField"], config["sentField"], config["audioField"], config["bookField"], config["freqField"]], entries[0][0], furigana, definition, entries[0][3], bookName.rstrip("*"), str(int(freqs[0])))
-                                        invoke(card, entries[0][0])
-                                        history.append(term_listW[j])
-                                else:
-                                    if config["bookName"] == 0:
-                                        card = newCard([config["deckName"], config["cardType"], config["termField"], config["readField"], config["dictField"], config["sentField"], config["audioField"], config["bookField"], config["freqField"]], entries[0][0], furigana, definition, entries[0][3])
-                                        invoke(card, entries[0][0])
-                                        history.append(term_listW[j])
-                                    else:
-                                        card = newCard([config["deckName"], config["cardType"], config["termField"], config["readField"], config["dictField"], config["sentField"], config["audioField"], config["bookField"], config["freqField"]], entries[0][0], furigana, definition, entries[0][3], bookName.rstrip("*"))
-                                        invoke(card, entries[0][0])
-                                        history.append(term_listW[j])
+                                    args["frequency"] = str(int(min(freqs))).replace("123456789", "")
+                                card = newCard(config, args)
+                                invoke(card, entries[0][0])
+                                history.append(term_listW[j])
                         else:
                             print(" Fail!    Frequency rank > {} or no frequency avaiable: ".format(freqMax), tmpList[0])
-            except KeyError:
-                print(" Fail!    No entry avaiable for: ", term_listW[j])
+            except Exception as e:
+                print(" Fail!    ", term_listW[j], e)
                 historyError.append(term_listW[j])
 
 pickBook()
