@@ -84,8 +84,6 @@ def add_freqList(freqN):
             if type(j[2]) is dict:
                 if "frequency" in j[2]:
                     freqlist[j[0]] = j[2]["frequency"]
-            elif re.search("★*\(\d+\)", j[2]) is not None:
-                freqlist[j[0]] = j[2]
             else:
                 if re.search("/", str(j[2])):
                     freqlist[j[0]] = int(j[2].split("/")[0])
