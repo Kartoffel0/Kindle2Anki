@@ -103,7 +103,7 @@ if config["first_run"] == 1:
         with zipfile.ZipFile("{}".format(input("\n Enter the filename for your {}° dictionary:\n ".format(i+1))), 'r') as zip_ref:
             zip_ref.extractall("app_files/{}".format(i))
         dict = add_dict(i)
-        config("dict_Names").append(dict[0])
+        config["dict_Names"].append(dict[0])
         dicts.append(dict[1])
     freqNum = int(input("\n This script don't support multi frequency per word frequency lists,\n make sure the frequency list you'll add has only one frequency per word\n\n Please inform how many frequency lists you want to add:\n "))
     for j in range(freqNum):
