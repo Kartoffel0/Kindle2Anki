@@ -42,6 +42,7 @@ A simple Python script to create Anki cards for Japanese words from Kindle's Voc
 - Be careful when entering your deck and card info, any mistypes will result in the script not working properly
 
 ## Note that:
+- Anki doesn't let you create a card with an empty first field, make sure you set your "Term" field to your note's first field.
 - This script will only create cards for japanese words
 - This script will not generate any duplicate cards
 - The cards are generated automatically, flaws are expected ~~even more with kindle's shitty text parser~~
