@@ -196,12 +196,15 @@ def invoke(params, term="error"):
             elif response['error'] == 'cannot create note because it is a duplicate':
                 print(" Fail!    Note is a duplicate: ", term)
             else:
+                print(" Fail!    Failed to add: ", term)
+                print(response['error'])
                 raise Exception
         else:
+            print(" Fail!    Failed to add: ", term)
+            print(response['error'])
             raise Exception
     except:
         historyError.append(term)
-        print(" Fail!    Failed to add: ", term)
 
 def deconjug(term, mode=0):
     tkTerm = TKZR.tokenize(term)
