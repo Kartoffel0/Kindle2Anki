@@ -172,7 +172,7 @@ def newCard(config, args):
     card = {"action": "addNote", "version": 6, "params": {"note":{"deckName": config["deckName"], "modelName": config["cardType"], "fields": {config["termField"]: args["term"], config["readField"]: args["reading"], config["dictField"]: args["definition"].replace("\n", "<br>"), config["sentField"]: args["sentence"]}, "options": {"allowDuplicate": False, "duplicateScope": "deck", "duplicateScopeOptions": {"deckName": config["deckName"], "checkChildren": True, "checkAllModels": True}}, "tags": ["Kindle2Anki"]}}}
     if tmpJpod in jpod:
         if config["localAudio"] == 1:
-            card["params"]["note"]["audio"] = [{"filename": "{} - {}.mp3".format(args["reading"], args["term"]),"url": "http://localhost:5050/?sources=jpod&term={}&reading={}".format(args["term"], args["reading"]), "fields": [config["audioField"]]}]
+            card["params"]["note"]["audio"] = [{"filename": "{} - {}.mp3".format(args["reading"], args["term"]),"url": "http://localhost:5050/jpod_audio/{} - {}.mp3".format(args["reading"], args["term"]), "fields": [config["audioField"]]}]
         else:
             card["params"]["note"]["audio"] = [{"filename": "{} - {}.mp3".format(args["reading"], args["term"]),"url": "https://assets.languagepod101.com/dictionary/japanese/audiomp3.php?kanji={}&kana={}".format(args["term"], args["reading"]), "fields": [config["audioField"]]}]
     else:
