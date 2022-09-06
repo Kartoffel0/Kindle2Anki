@@ -1,4 +1,5 @@
 from logging import exception
+import shutil
 import time
 import zipfile
 import os
@@ -11,9 +12,7 @@ from collections import deque
 from datetime import datetime
 
 """
-If you run into any problems while trying to use this script 
-you can contact me on discord Kartoffel#7357 and I'll try to fix it
-no guarantees tho
+discord Kartoffel#7357 
 """
 
 TKZR = dictionary.Dictionary(dict_type="full").create()
@@ -39,6 +38,10 @@ def loadJson(filename, default):
     except:
         return default
 
+def dumpJson(filename, var):
+    with open(f"app_files/{filename}", "w+", encoding="utf-8") as file:
+        json.dump(var, file, ensure_ascii=False)
+
 try:
     jpod = json.load(open("app_files/jpodFiles.json", encoding="utf-8"))
 except:
@@ -50,7 +53,7 @@ try:
 except:
     freqMain = {}
 
-config = loadJson("app_files/config", {"first_run":1})
+config = loadJson("app_files/config", {"first_run":1, "dict_Names": []})
 dicts = loadJson("app_files/dicts", [])
 freqlists = loadJson("app_files/freqLists", [])
 history = loadJson("app_files/added", [])
@@ -91,6 +94,27 @@ def add_freqList(freqN):
                     freqlist[j[0]] = j[2]
     return freqlist
 
+def checkConfig(configDict):
+    queries = [
+        ["deckName", lambda : input("\n Please inform the name of the deck(!!!case sensitive!!!) where you want the cards to be added:\n ")], 
+        ["cardType", lambda : input("\n Please inform the Note Type(!!!case sensitive!!!) you want to use as template for the added cards:\n ")],
+        ["termField", lambda : input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Word' to be, make sure it is the first field of the Note Type you've chosen:\n ")],
+        ["readField", lambda : input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Reading' to be:\n ")],
+        ["dictField", lambda : input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Definitions' to be:\n ")],
+        ["sentField", lambda : input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Sentence' to be:\n ")],
+        ["termBtag", lambda : 1 if input("\n Do you want to highlight the looked up term on the sentence?[y/n]:\n ") == "y" else 0],
+        ["audioField", lambda : input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Audio' to be:\n ")],
+        ["localAudio", lambda : 1 if input("\n Do you have Yomichan Local Audio Server Addon installed and want to use it as your audio source?[y/n]:\n ") == "y" else 0],
+        ["freqField", lambda : input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Word Frequency' to be, or enter 0 if you don't want it on your cards:\n ")],
+        ["bookName", lambda : input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Book Name' to be\n Enter 0 if you don't want to add the book name to your cards:\n ")],
+        ["bookField", lambda : configDict["bookName"] if configDict["bookName"] != 0 else None],
+        ["scope", lambda : "deck" if int(input("\n Please inform where do you want the script to check for duplicates,\n enter 0 to check for them only on the deck you specified or 1 to check for them on your whole collection:\n ")) == 0 else "collection"]
+    ]
+    for i in queries:
+        if i[0] not in configDict:
+            configDict[i[0]] = i[1]()
+    return configDict
+
 print(" Kindle2Anki - https://github.com/Kartoffel0/Kindle2Anki")
 if config["first_run"] == 1:
     print("\n This will only be asked once,\n on the next run you'll not have to inform everything again.")
@@ -103,39 +127,20 @@ if config["first_run"] == 1:
         dict = add_dict(i)
         config["dict_Names"].append(dict[0])
         dicts.append(dict[1])
+        shutil.rmtree("app_files/{}".format(i), ignore_errors=True)
     freqNum = int(input("\n This script don't support multi frequency per word frequency lists,\n make sure the frequency list you'll add has only one frequency per word\n\n Please inform how many frequency lists you want to add:\n "))
     for j in range(freqNum):
         with zipfile.ZipFile("{}".format(input("\n Enter the filename for your {}° frequency list:\n ".format(j+1))), 'r') as zip_ref:
             zip_ref.extractall("app_files/freq/{}".format(j))
         freqlists.append(add_freqList(j))
+    shutil.rmtree("app_files/freq", ignore_errors=True)
     if freqNum > 0:
         freqMax = int(input("\n Please inform the maximum frequency limit\n any words with a frequency rank superior to\n that will not be processed, or 0 to not set a limit:\n "))
         config["freqMax"] = freqMax
     else:
         config["freqMax"] = 0
+    config = checkConfig(config)
     config["first_run"] = 0
-    deck = input("\n Please inform the name of the deck(!!!case sensitive!!!) where you want the cards to be added:\n ")
-    config["deckName"] = deck
-    cardType = input("\n Please inform the Note Type(!!!case sensitive!!!) you want to use as template for the added cards:\n ")
-    config["cardType"] = cardType
-    termField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Word' to be:\n ")
-    config["termField"] = termField
-    readField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Reading' to be:\n ")
-    config["readField"] = readField
-    dictField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Definitions' to be:\n ")
-    config["dictField"] = dictField
-    sentField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Sentence' to be:\n ")
-    config["sentField"] = sentField
-    audioField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Audio' to be:\n ")
-    config["audioField"] = audioField
-    freqField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Word Frequency' to be, or enter 0 if you don't want it on your cards:\n")
-    config["freqField"] = freqField
-    nameField = input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Book Name' to be\n Enter 0 if you don't want to add the book name to your cards:\n ")
-    if nameField != 0:
-        config["bookName"] = 1
-        config["bookField"] = nameField
-    checkScope = int(input("\n Please inform where do you want the script to check for duplicates,\n enter 0 to check for them only on the deck you specified or 1 to check for them on your whole collection:\n "))
-    config["scope"] = "deck" if checkScope == 0 else "collection"
     names = []
     for i in range(len(config["dict_Names"])):
         if config["dict_Names"][i] in names:
@@ -146,13 +151,13 @@ if config["first_run"] == 1:
     config["dict_Names"] = names
     dict_name = config["dict_Names"]
 
-    with open("app_files/config.json", "w", encoding="utf-8") as file:
-        json.dump(config, file, ensure_ascii=False)
-    with open("app_files/dicts.json", "w", encoding="utf-8") as file:
-        json.dump(dicts, file, ensure_ascii=False)
-    with open("app_files/freqLists.json", "w", encoding="utf-8") as file:
-        json.dump(freqlists, file, ensure_ascii=False)
+    dumpJson("config.json", config)
+    dumpJson("dicts.json", dicts)
+    dumpJson("freqLists.json", freqlists)
     print("\n Done!\n")
+
+config = checkConfig(config)
+dumpJson("config.json", config)
 
 dict_name = config["dict_Names"]
 freqMax = config["freqMax"]
@@ -166,7 +171,10 @@ def newCard(config, args):
     tmpJpod = (args["reading"]+"_"+args["term"])
     card = {"action": "addNote", "version": 6, "params": {"note":{"deckName": config["deckName"], "modelName": config["cardType"], "fields": {config["termField"]: args["term"], config["readField"]: args["reading"], config["dictField"]: args["definition"].replace("\n", "<br>"), config["sentField"]: args["sentence"]}, "options": {"allowDuplicate": False, "duplicateScope": "deck", "duplicateScopeOptions": {"deckName": config["deckName"], "checkChildren": True, "checkAllModels": True}}, "tags": ["Kindle2Anki"]}}}
     if tmpJpod in jpod:
-        card["params"]["note"]["audio"] = [{"filename": "{} - {}.mp3".format(args["reading"], args["term"]),"url": "https://assets.languagepod101.com/dictionary/japanese/audiomp3.php?kanji={}&kana={}".format(args["term"], args["reading"]), "fields": [config["audioField"]]}]
+        if config["localAudio"] == 1:
+            card["params"]["note"]["audio"] = [{"filename": "{} - {}.mp3".format(args["reading"], args["term"]),"url": "http://localhost:5050/?sources=jpod&term={}&reading={}".format(args["term"], args["reading"]), "fields": [config["audioField"]]}]
+        else:
+            card["params"]["note"]["audio"] = [{"filename": "{} - {}.mp3".format(args["reading"], args["term"]),"url": "https://assets.languagepod101.com/dictionary/japanese/audiomp3.php?kanji={}&kana={}".format(args["term"], args["reading"]), "fields": [config["audioField"]]}]
     else:
         print(" Warning!    No audio avaiable: ", args["term"])
     if "frequency" in args:
@@ -179,7 +187,10 @@ def invoke(params, term="error"):
     global cntCards
     global historyError
     global config
-    time.sleep(1)
+    if config["localAudio"] == 1:
+        time.sleep(0.25)
+    else:
+        time.sleep(1)
     try:
         if config["scope"] == "deck":
             requestJson = json.dumps(params).encode('utf-8')
@@ -422,6 +433,11 @@ def pickBook():
                                     definition += '<li><i>({})</i>{}</li>'.format(dict_name[o[4]], o[2])
                                 definition += '</ol></div>'
                                 args = {"term": entries[0][0], "reading": furigana, "definition": definition, "sentence": entries[0][3]}
+                                if config["termBtag"] == 1:
+                                    if re.search(term_listW[j], entries[0][3]) is not None:
+                                        args["sentence"] = re.sub(term_listW[j], f"<b>{term_listW[j]}</b>", entries[0][3])
+                                    elif re.search(term_listS[j], entries[0][3]) is not None:
+                                        args["sentence"] = re.sub(term_listS[j], f"<b>{term_listS[j]}</b>", entries[0][3])
                                 if config["bookName"] != 0:
                                     args["bookName"] = bookName.rstrip("*")
                                 if config["freqField"] != 0:
@@ -437,14 +453,11 @@ def pickBook():
 
 pickBook()
 
-with open("app_files/added.json", "w", encoding="utf-8") as file:
-    json.dump(history, file, ensure_ascii=False)
-with open("app_files/errorHistory.json", "w", encoding="utf-8") as file:
-    json.dump(historyError, file, ensure_ascii=False)
+dumpJson("added.json", history)
+dumpJson("errorHistory.json", historyError)
 
-if int(input("\n Added cards: {}\n Enter 0 to update the 'last mined from' date and reset the 'new' card counter, or -1 keep it as it is now:\n ".format(cntCards))) == 0:
+if input("\n Added cards: {}\n Update the 'last mined from' date and reset the 'new' card counter?[y/n]:\n ".format(cntCards)) == "y":
     config["timestamps"][book] = timestamps[book]
-    with open("app_files/config.json", "w", encoding="utf-8") as file:
-            json.dump(config, file, ensure_ascii=False)
+    dumpJson("config.json", config)
 
-endVar = input(" Done!\n\n Enter 'OK' to close the script:\n ")
+endVar = input(" Done!\n\n Press enter to close the script:\n ")
