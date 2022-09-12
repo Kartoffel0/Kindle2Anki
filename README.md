@@ -12,9 +12,9 @@ A simple Python script to create Anki cards for Japanese words from Kindle's Voc
 <table>
   <tr>
     <td> <img src="Screenshots/Kindle2Anki_running.JPG" width=auto height=auto></td>
-    <td><img src="Screenshots/Kindle2Anki_Card1.JPG" width=auto height=auto></td>
-    <td><img src="Screenshots/Kindle2Anki_Card2.JPG" width=auto height=auto></td>
-    <td><img src="Screenshots/Kindle2Anki_Card3.JPG" width=auto height=auto></td>
+    <td><img src="https://user-images.githubusercontent.com/99134182/188528265-f6e0777e-a033-4b5b-8abd-9b143fb722f4.JPG" width=auto height=auto></td>
+    <td><img src="https://user-images.githubusercontent.com/99134182/188528262-6a6143cb-36a3-45b5-ab32-0f5d9ef93e91.JPG" width=auto height=auto></td>
+    <td><img src="https://user-images.githubusercontent.com/99134182/188528266-bc099279-785e-4db8-9522-dd92a6f5f22b.JPG" width=auto height=auto></td>
   </tr>
  </table>
 
