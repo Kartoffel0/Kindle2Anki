@@ -15,7 +15,7 @@ from datetime import datetime
 discord Kartoffel#7357 
 """
 
-TKZR = dictionary.Dictionary(dict_type="full").create()
+TKZR = dictionary.Dictionary(dict="full").create()
 cntCards = 0
 dict_DBterms = {}
 dict_DBtermsRev = {}
