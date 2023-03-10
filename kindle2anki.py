@@ -348,9 +348,9 @@ def pickBook():
     print("\n | ID\t| WORDS\t\t| AVAIABLE\t| NEW \t(YY/MM/DD) | BOOK NAME")
     for i in range(len(book_list)):
         if dict_DBBooks[book_list[i]] in config["timestamps"] and config["timestamps"][dict_DBBooks[book_list[i]]] != 0:
-            print(" |", i," \t|",wordCount[dict_DBBooks[book_list[i]]]," \t\t|",(wordCount[dict_DBBooks[book_list[i]]] - wordCountAdded[dict_DBBooks[book_list[i]]]), "    \t|", wordCountNew[dict_DBBooks[book_list[i]]], " \t({})".format(str(datetime.fromtimestamp(config["timestamps"][dict_DBBooks[book_list[i]]]/1000)).split(" ")[0].replace("-", "/")[2:]), "|",book_list[i])
+            print(" |", str(i).ljust(2, " "),"\t|",str(wordCount[dict_DBBooks[book_list[i]]]).ljust(4, " "),"\t\t|",str((wordCount[dict_DBBooks[book_list[i]]] - wordCountAdded[dict_DBBooks[book_list[i]]])).ljust(4, " "), "\t\t|", str(wordCountNew[dict_DBBooks[book_list[i]]]).ljust(4, " "), "\t({})".format(str(datetime.fromtimestamp(config["timestamps"][dict_DBBooks[book_list[i]]]/1000)).split(" ")[0].replace("-", "/")[2:]), "|",book_list[i])
         else:
-            print(" |", i," \t|",wordCount[dict_DBBooks[book_list[i]]]," \t\t|",(wordCount[dict_DBBooks[book_list[i]]] - wordCountAdded[dict_DBBooks[book_list[i]]]), "    \t|", wordCountNew[dict_DBBooks[book_list[i]]], " \t(00/00/00)", "|",book_list[i])
+            print(" |", str(i).ljust(2, " "),"\t|",str(wordCount[dict_DBBooks[book_list[i]]]).ljust(4, " "),"\t\t|",str((wordCount[dict_DBBooks[book_list[i]]] - wordCountAdded[dict_DBBooks[book_list[i]]])).ljust(4, " "), "\t\t|", str(wordCountNew[dict_DBBooks[book_list[i]]]).ljust(4, " "), "\t(00/00/00)", "|",book_list[i])
     bookName = book_list[int(input("\n Enter the ID of the book to mine from:\n "))]
     book = dict_DBBooks[bookName]
     numCards = int(input("\n Enter the number of cards to be added:\n You can also enter 0 to add all avaiable or -1 to mine from the new words only:\n "))
