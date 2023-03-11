@@ -20,8 +20,7 @@ cntCards = 0
 dict_DBterms = {}
 dict_DBtermsRev = {}
 dict_DBtermsRev2 = {}
-term_listS = deque()
-term_listW = deque()
+term_list = deque()
 dict_DBsource = {}
 dict_DBBooks = {}
 book_list = []
@@ -102,13 +101,14 @@ def checkConfig(configDict):
         ["readField", lambda : input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Reading' to be:\n ")],
         ["dictField", lambda : input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Definitions' to be:\n ")],
         ["sentField", lambda : input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Sentence' to be:\n ")],
-        ["termBtag", lambda : 1 if input("\n Do you want to highlight the looked up term on the sentence?[y/n]:\n ") == "y" else 0],
+        ["termBtag", lambda : 1 if input("\n Would you like to highlight the looked up term on the sentence?[y/n]:\n ") == "y" else 0],
         ["audioField", lambda : input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Audio' to be:\n ")],
         ["localAudio", lambda : 1 if input("\n Do you have Yomichan Local Audio Server Addon installed and want to use it as your audio source?[y/n]:\n ") == "y" else 0],
         ["freqField", lambda : input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Word Frequency' to be, or enter 0 if you don't want it on your cards:\n ")],
         ["bookName", lambda : input("\n Please inform the field name(!!!case sensitive!!!) where you want the 'Book Name' to be\n Enter 0 if you don't want to add the book name to your cards:\n ")],
         ["bookField", lambda : configDict["bookName"] if configDict["bookName"] != 0 else None],
-        ["scope", lambda : "deck" if int(input("\n Please inform where do you want the script to check for duplicates,\n enter 0 to check for them only on the deck you specified or 1 to check for them on your whole collection:\n ")) == 0 else "collection"]
+        ["scope", lambda : "deck" if int(input("\n Please inform where do you want the script to check for duplicates,\n enter 0 to check for them only on the deck you specified or 1 to check for them on your whole collection:\n ")) == 0 else "collection"],
+        ["sortByFreq", lambda : True if input("\n Would you like to sort the words to be added based on their respective frequencies?[y/n]:\n ") == "y" else False]
     ]
     for i in queries:
         if i[0] not in configDict:
@@ -255,6 +255,25 @@ def lookup(term, source, dictN=0, exact=0):
                     except KeyError:
                         return None
 
+def frequency(term):
+    frequency = []
+    for q in range(len(freqlists)):
+        try:
+            frequency.append(float(freqlists[q][term[1]]))
+        except KeyError:
+            try:
+                frequency.append(float(freqlists[q][deconjug(term[1])]))
+            except KeyError:
+                try:
+                    frequency.append(float(freqlists[q][deconjug(term[1], 1)]))
+                except KeyError:
+                    pass
+    if len(frequency) == 0:
+        return 999999999
+    else:
+        return min(frequency)
+
+
 sqliteConnection = sqlite3.connect('vocab.db')
 
 cursor = sqliteConnection.cursor()
@@ -274,8 +293,7 @@ for i in range(len(dbWords)):
         dict_DBterms[dbWords[i][1]] = dbWords[i][0]
         dict_DBtermsRev[dbWords[i][0]] = dbWords[i][1]
         dict_DBtermsRev2[dbWords[i][0]] = dbWords[i][2]
-        term_listS.appendleft(dbWords[i][2])
-        term_listW.appendleft(dbWords[i][1])
+        term_list.appendleft((dbWords[i][2], dbWords[i][1]))
         timestampsDB[dbWords[i][0]] = dbWords[i][5]
 
 for i in range(len(dbSource)):
@@ -324,6 +342,10 @@ for i in range(len(dbSource)):
     except:
         pass
 
+if config["sortByFreq"] and len(freqlists) > 0:
+    term_list = list(term_list)
+    term_list.sort(key=frequency)
+
 for i in range(len(dbBooks)):
     if dbBooks[i][3] == "ja":
         if dbBooks[i][4] in dict_DBBooks:
@@ -371,17 +393,17 @@ def pickBook():
                     dict_DBsource[dbSource[i][1]] = dbSource[i][5]
             else:
                 dict_DBsource[dbSource[i][1]] = dbSource[i][5]
-    for j in range(len(term_listW)):
-        if dict_DBterms[term_listW[j]] in dict_DBsource:
+    for j in range(len(term_list)):
+        if dict_DBterms[term_list[j][1]] in dict_DBsource:
             try:
-                tmpList = lookup(term_listW[j], dict_DBsource[dict_DBterms[term_listW[j]]], -1)
+                tmpList = lookup(term_list[j][1], dict_DBsource[dict_DBterms[term_list[j][1]]], -1)
                 freqs = []
                 if tmpList != None:
                     if freqMax == 0:
                         subFreq = True
                     else:
                         subFreq = False
-                    if (tmpList[0] in history) or (term_listW[j] in history) or (term_listS[j] in history) or (tmpList[0] in historyError) or (term_listW[j] in historyError) or (term_listS[j] in historyError):
+                    if (tmpList[0] in history) or (term_list[j][1] in history) or (term_list[j][0] in history) or (tmpList[0] in historyError) or (term_list[j][1] in historyError) or (term_list[j][0] in historyError):
                         continue
                     for q in range(len(freqlists)):
                         try:
@@ -398,28 +420,28 @@ def pickBook():
                             entries = []
                             for u in range(config["dictNum"]):
                                 if len(entries) == 0:
-                                    entry = lookup(term_listW[j], dict_DBsource[dict_DBterms[term_listW[j]]], u, 1)
+                                    entry = lookup(term_list[j][1], dict_DBsource[dict_DBterms[term_list[j][1]]], u, 1)
                                     if entry != None:
-                                        if (entry[0] in history) or (term_listW[j] in history) or (term_listS[j] in history) or (entry[0] in historyError) or (term_listW[j] in historyError) or (term_listS[j] in historyError):
+                                        if (entry[0] in history) or (term_list[j][1] in history) or (term_list[j][0] in history) or (entry[0] in historyError) or (term_list[j][1] in historyError) or (term_list[j][0] in historyError):
                                             continue
                                         else:
                                             entries.append(entry)
                                 else:
-                                    entry = lookup(entries[0][0], dict_DBsource[dict_DBterms[term_listW[j]]], u, 1)
+                                    entry = lookup(entries[0][0], dict_DBsource[dict_DBterms[term_list[j][1]]], u, 1)
                                     if entry != None:
                                         if entry[1] == entries[0][1] or entry[0] == entries[0][1] or ((entries[0][1] == '' or entry[1] == '') and entry[0] == entries[0][0]):
                                             entries.append(entry)   
                             if len(entries) == 0 or len(entries) < config["dictNum"]:
                                 for u in range(config["dictNum"]):
                                     if len(entries) == 0:
-                                        entry = lookup(term_listW[j], dict_DBsource[dict_DBterms[term_listW[j]]], u)
+                                        entry = lookup(term_list[j][1], dict_DBsource[dict_DBterms[term_list[j][1]]], u)
                                         if entry != None:
-                                            if (entry[0] in history) or (term_listW[j] in history) or (term_listS[j] in history) or (entry[0] in historyError) or (term_listW[j] in historyError) or (term_listS[j] in historyError):
+                                            if (entry[0] in history) or (term_list[j][1] in history) or (term_list[j][0] in history) or (entry[0] in historyError) or (term_list[j][1] in historyError) or (term_list[j][0] in historyError):
                                                 continue
                                             else:
                                                 entries.append(entry)
                                     else:
-                                        entry = lookup(entries[0][0], dict_DBsource[dict_DBterms[term_listW[j]]], u)
+                                        entry = lookup(entries[0][0], dict_DBsource[dict_DBterms[term_list[j][1]]], u)
                                         if entry != None:
                                             if entry[1] == entries[0][1] or entry[0] == entries[0][1] or ((entries[0][1] == '' or entry[1] == '') and entry[0] == entries[0][0]):
                                                 if entry not in entries:
@@ -434,22 +456,22 @@ def pickBook():
                                 definition += '</ol></div>'
                                 args = {"term": entries[0][0], "reading": furigana, "definition": definition, "sentence": entries[0][3]}
                                 if config["termBtag"] == 1:
-                                    if re.search(term_listW[j], entries[0][3]) is not None:
-                                        args["sentence"] = re.sub(term_listW[j], f"<b>{term_listW[j]}</b>", entries[0][3])
-                                    elif re.search(term_listS[j], entries[0][3]) is not None:
-                                        args["sentence"] = re.sub(term_listS[j], f"<b>{term_listS[j]}</b>", entries[0][3])
+                                    if re.search(term_list[j][1], entries[0][3]) is not None:
+                                        args["sentence"] = re.sub(term_list[j][1], f"<b>{term_list[j][1]}</b>", entries[0][3])
+                                    elif re.search(term_list[j][0], entries[0][3]) is not None:
+                                        args["sentence"] = re.sub(term_list[j][0], f"<b>{term_list[j][0]}</b>", entries[0][3])
                                 if config["bookName"] != 0:
                                     args["bookName"] = bookName.rstrip("*")
                                 if config["freqField"] != 0:
                                     args["frequency"] = str(int(min(freqs))).replace("123456789", "")
                                 card = newCard(config, args)
                                 invoke(card, entries[0][0])
-                                history.append(term_listW[j])
+                                history.append(term_list[j][1])
                         else:
                             print(" Fail!    Frequency rank > {} or no frequency avaiable: ".format(freqMax), tmpList[0])
             except Exception as e:
-                print(" Fail!    ", term_listW[j], e)
-                historyError.append(term_listW[j])
+                print(" Fail!    ", term_list[j][1], e)
+                historyError.append(term_list[j][1])
 
 pickBook()
 
