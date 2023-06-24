@@ -183,11 +183,11 @@ def newCard(config, args):
         card["params"]["note"]["fields"][config["bookField"]] = args["bookName"]
     return card
 
-def invoke(params, term="error"):
+def invoke(params, term="error", manual=False):
     global cntCards
     global historyError
     global config
-    if config["localAudio"] == 1:
+    if config["localAudio"] == 1 or manual:
         time.sleep(0.25)
     else:
         time.sleep(1)
@@ -366,6 +366,8 @@ def pickBook():
     global cntCards
     global book
     onlyNew = False
+    manualMode = False
+    addCard = False
     print("\n Words:\t\tTotal number of words from that book on Kindle's database\n Avaiable:\tTotal amount of those words not yet processed by this script\n New:\t\tTotal amount of those words that were added since the indicated 'last mined from' date")
     print("\n | ID\t| WORDS\t\t| AVAIABLE\t| NEW \t(YY/MM/DD) | BOOK NAME")
     for i in range(len(book_list)):
@@ -375,9 +377,13 @@ def pickBook():
             print(" |", str(i).ljust(2, " "),"\t|",str(wordCount[dict_DBBooks[book_list[i]]]).ljust(4, " "),"\t\t|",str((wordCount[dict_DBBooks[book_list[i]]] - wordCountAdded[dict_DBBooks[book_list[i]]])).ljust(4, " "), "\t\t|", str(wordCountNew[dict_DBBooks[book_list[i]]]).ljust(4, " "), "\t(00/00/00)", "|",book_list[i])
     bookName = book_list[int(input("\n Enter the ID of the book to mine from:\n "))]
     book = dict_DBBooks[bookName]
-    numCards = int(input("\n Enter the number of cards to be added:\n You can also enter 0 to add all avaiable or -1 to mine from the new words only:\n "))
+    numCards = int(input("\n Enter the number of cards to be added:\n You can also enter 0 to add all avaiable, -1 to mine from the new words only or -3 to choose which cards will be added:\n "))
     if numCards == 0:
         numCards = 99999
+    if numCards == -3:
+        numCards = 99999
+        manualMode = True
+        print("\n When prompted enter 'enter' or 0 to add a card to anki, enter anything else to not add it!\n All cards shown, including not added ones, will be added to the list of processed words!\n ")
     if numCards == -1:
         onlyNew = True
         numCards = int(input("\n Enter how many of the new words you want to mine, or 0 to add all avaiable:\n "))
@@ -408,7 +414,7 @@ def pickBook():
                     for q in range(len(freqlists)):
                         try:
                             tmpTerm = float(freqlists[q][tmpList[0]])
-                            if tmpTerm <= freqMax or subFreq == True:
+                            if tmpTerm <= freqMax or subFreq == True or manualMode:
                                 subFreq = True
                                 freqs.append(tmpTerm)
                         except KeyError:
@@ -464,8 +470,31 @@ def pickBook():
                                     args["bookName"] = bookName.rstrip("*")
                                 if config["freqField"] != 0:
                                     args["frequency"] = str(int(min(freqs))).replace("123456789", "")
-                                card = newCard(config, args)
-                                invoke(card, entries[0][0])
+
+                                if manualMode:
+                                    print("\n", "="*32)
+                                    print(f" 【{args['term']} | {args['reading']}】［{args['frequency']}］\n\n ❝ {args['sentence'].replace('<b>', '   ‘‘‘').replace('</b>', '’’’  ')} ❞")
+                                    for e in entries: 
+                                        print('\n ({})\n {}'.format(dict_name[e[4]], e[2]))
+                                    print("="*32)
+                                    cardRating = input("\n Add the card?[y/n/stop] ")
+                                    if cardRating == "" or cardRating == "y" or cardRating == "0":
+                                        addCard = True
+                                    elif cardRating == "stop":
+                                        break
+                                    else:
+                                        addCard = False
+                                        print(" Skipped!")
+                                else:
+                                    addCard = True
+
+                                if addCard:
+                                    card = newCard(config, args)
+                                    if manualMode: 
+                                        invoke(card, entries[0][0], manual=True)
+                                    else:
+                                        invoke(card, entries[0][0])
+                                
                                 history.append(term_list[j][1])
                         else:
                             print(" Fail!    Frequency rank > {} or no frequency avaiable: ".format(freqMax), tmpList[0])
