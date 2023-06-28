@@ -57,6 +57,8 @@ dicts = loadJson("app_files/dicts", [])
 freqlists = loadJson("app_files/freqLists", [])
 history = loadJson("app_files/added", [])
 historyError = loadJson("app_files/errorHistory", [])
+ankiCards = loadJson("app_files/cards", [])
+ankiCardIDs = loadJson("app_files/cardIds", [])
 
 def add_dict(dictN):
     dict = {}
@@ -217,6 +219,36 @@ def invoke(params, term="error", manual=False):
     except:
         historyError.append(term)
 
+def getCards():
+    global config
+    global ankiCards
+    global ankiCardIDs
+    reqId = {"action": "findCards", "version": 6, "params": {"query": ""}}
+    if config["scope"] == "deck":
+        reqId['params']['query'] = f'deck:{config["deckName"]}'
+    else:
+        reqId['params']['query'] = 'deck:_*'
+    requestJson = json.dumps(reqId).encode('utf-8')
+    response = json.load(urllib.request.urlopen(urllib.request.Request('http://localhost:8765', requestJson)))
+    if response["error"] is None:
+
+        newCards = []
+        for w in response["result"]:
+            if w not in ankiCardIDs:
+                ankiCardIDs.append(w)
+                newCards.append(w)
+
+        reqCards = {"action": "cardsInfo", "version": 6, "params": {"cards": newCards}}
+        requestJson = json.dumps(reqCards).encode('utf-8')
+        cardsInfo = json.load(urllib.request.urlopen(urllib.request.Request('http://localhost:8765', requestJson)))
+        if cardsInfo['error'] is None:
+            for c in cardsInfo['result']:
+                ankiCards.append(c['fields'][config['termField']]['value'])
+        else:
+            print("error cardsInfo card info", cardsInfo['error'])
+    else:
+        print("error getCards cardsID", response['error'])
+
 def deconjug(term, mode=0):
     tkTerm = TKZR.tokenize(term)
     if mode == 0:
@@ -273,6 +305,7 @@ def frequency(term):
     else:
         return min(frequency)
 
+getCards()
 
 sqliteConnection = sqlite3.connect('vocab.db')
 
@@ -335,7 +368,7 @@ for i in range(len(dbSource)):
             wordCountAdded[dbSource[i][2]] += 1
             if timestampsDB[dbSource[i][1]] > config["timestamps"][dbSource[i][2]]:
                 wordCountNew[dbSource[i][2]] -= 1
-        elif (tmpWords[0] in history) or (stem in history) or (stem2 in history) or (tmpWords[0] in historyError) or (stem in historyError) or (stem2 in historyError):
+        elif (tmpWords[0] in history) or (stem in history) or (stem2 in history) or (tmpWords[0] in historyError) or (stem in historyError) or (stem2 in historyError) or (tmpWords[0] in ankiCards) or (stem in ankiCards) or (stem2 in ankiCards):
             wordCountAdded[dbSource[i][2]] += 1
             if timestampsDB[dbSource[i][1]] > config["timestamps"][dbSource[i][2]]:
                 wordCountNew[dbSource[i][2]] -= 1
@@ -368,7 +401,7 @@ def pickBook():
     onlyNew = False
     manualMode = False
     addCard = False
-    print("\n Words:\t\tTotal number of words from that book on Kindle's database\n Avaiable:\tTotal amount of those words not yet processed by this script\n New:\t\tTotal amount of those words that were added since the indicated 'last mined from' date")
+    print("\n Words:\t\tTotal number of words from that book on Kindle's database\n Avaiable:\tTotal amount of those words not yet processed by this script/found on your defined Anki Deck/Collection\n New:\t\tTotal amount of those words that were added since the indicated 'last mined from' date")
     print("\n | ID\t| WORDS\t\t| AVAIABLE\t| NEW \t(YY/MM/DD) | BOOK NAME")
     for i in range(len(book_list)):
         if dict_DBBooks[book_list[i]] in config["timestamps"] and config["timestamps"][dict_DBBooks[book_list[i]]] != 0:
@@ -409,7 +442,7 @@ def pickBook():
                         subFreq = True
                     else:
                         subFreq = False
-                    if (tmpList[0] in history) or (term_list[j][1] in history) or (term_list[j][0] in history) or (tmpList[0] in historyError) or (term_list[j][1] in historyError) or (term_list[j][0] in historyError):
+                    if (tmpList[0] in history) or (term_list[j][1] in history) or (term_list[j][0] in history) or (tmpList[0] in historyError) or (term_list[j][1] in historyError) or (term_list[j][0] in historyError) or (tmpList[0] in ankiCards) or (term_list[j][1] in ankiCards) or (term_list[j][0] in ankiCards):
                         continue
                     for q in range(len(freqlists)):
                         try:
@@ -506,6 +539,8 @@ pickBook()
 
 dumpJson("added.json", history)
 dumpJson("errorHistory.json", historyError)
+dumpJson("cards.json", ankiCards)
+dumpJson("cardIds.json", ankiCardIDs)
 
 if input("\n Added cards: {}\n Update the 'last mined from' date and reset the 'new' card counter?[y/n]:\n ".format(cntCards)) == "y":
     config["timestamps"][book] = timestamps[book]
