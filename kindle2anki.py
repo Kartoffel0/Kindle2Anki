@@ -525,8 +525,7 @@ def pickBook():
                                         break
                                     else:
                                         print(" Skipped!")
-
-                                if not manualMode:
+                                else:
                                     card = newCard(config, args)
                                     invoke(card, entries[0][0])
                                 
