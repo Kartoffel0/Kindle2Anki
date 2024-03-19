@@ -44,7 +44,7 @@ def dumpJson(filename, var):
 try:
     jpod = json.load(open("app_files/jpodFiles.json", encoding="utf-8"))
 except:
-    print(" Japanesepod's avaiable audio database not found!\n Please download it from Kindle2Anki's github repository!")
+    print(" Japanesepod's available audio database not found!\n Please download it from Kindle2Anki's github repository!")
     jpod = []
 
 try:
@@ -178,7 +178,7 @@ def newCard(config, args):
         else:
             card["params"]["note"]["audio"] = [{"filename": "{} - {}.mp3".format(args["reading"], args["term"]),"url": "https://assets.languagepod101.com/dictionary/japanese/audiomp3.php?kanji={}&kana={}".format(args["term"], args["reading"]), "fields": [config["audioField"]]}]
     else:
-        print(" Warning!    No audio avaiable: ", args["term"])
+        print(" Warning!    No audio available: ", args["term"])
     if "frequency" in args:
         card["params"]["note"]["fields"][config["freqField"]] = args["frequency"]
     if "bookName" in args:
@@ -401,8 +401,8 @@ def pickBook():
     onlyNew = False
     manualMode = False
     addCard = False
-    print("\n Words:\t\tTotal number of words from that book on Kindle's database\n Avaiable:\tTotal amount of those words not yet processed by this script/found on your defined Anki Deck/Collection\n New:\t\tTotal amount of those words that were added since the indicated 'last mined from' date")
-    print("\n | ID\t| WORDS\t\t| AVAIABLE\t| NEW \t(YY/MM/DD) | BOOK NAME")
+    print("\n Words:\t\tTotal number of words from that book on Kindle's database\n Available:\tTotal amount of those words not yet processed by this script/found on your defined Anki Deck/Collection\n New:\t\tTotal amount of those words that were added since the indicated 'last mined from' date")
+    print("\n | ID\t| WORDS\t\t| AVAILABLE\t| NEW \t(YY/MM/DD) | BOOK NAME")
     for i in range(len(book_list)):
         if dict_DBBooks[book_list[i]] in config["timestamps"] and config["timestamps"][dict_DBBooks[book_list[i]]] != 0:
             print(" |", str(i).ljust(2, " "),"\t|",str(wordCount[dict_DBBooks[book_list[i]]]).ljust(4, " "),"\t\t|",str((wordCount[dict_DBBooks[book_list[i]]] - wordCountAdded[dict_DBBooks[book_list[i]]])).ljust(4, " "), "\t\t|", str(wordCountNew[dict_DBBooks[book_list[i]]]).ljust(4, " "), "\t({})".format(str(datetime.fromtimestamp(config["timestamps"][dict_DBBooks[book_list[i]]]/1000)).split(" ")[0].replace("-", "/")[2:]), "|",book_list[i])
@@ -410,7 +410,7 @@ def pickBook():
             print(" |", str(i).ljust(2, " "),"\t|",str(wordCount[dict_DBBooks[book_list[i]]]).ljust(4, " "),"\t\t|",str((wordCount[dict_DBBooks[book_list[i]]] - wordCountAdded[dict_DBBooks[book_list[i]]])).ljust(4, " "), "\t\t|", str(wordCountNew[dict_DBBooks[book_list[i]]]).ljust(4, " "), "\t(00/00/00)", "|",book_list[i])
     bookName = book_list[int(input("\n Enter the ID of the book to mine from:\n "))]
     book = dict_DBBooks[bookName]
-    numCards = int(input("\n Enter the number of cards to be added:\n You can also enter 0 to add all avaiable, -1 to mine from the new words only or -3 to choose which cards will be added:\n "))
+    numCards = int(input("\n Enter the number of cards to be added:\n You can also enter 0 to add all available, -1 to mine from the new words only or -3 to choose which cards will be added:\n "))
     if numCards == 0:
         numCards = 99999
     if numCards == -3:
@@ -419,7 +419,7 @@ def pickBook():
         print("\n When prompted enter 'enter' or 0 to add a card to anki, enter anything else to not add it!\n All cards shown, including not added ones, will be added to the list of processed words!\n ")
     if numCards == -1:
         onlyNew = True
-        numCards = int(input("\n Enter how many of the new words you want to mine, or 0 to add all avaiable:\n "))
+        numCards = int(input("\n Enter how many of the new words you want to mine, or 0 to add all available:\n "))
         if numCards == 0:
             numCards = 99999
     for i in range(len(dbSource)):
@@ -530,7 +530,7 @@ def pickBook():
                                 
                                 history.append(term_list[j][1])
                         else:
-                            print(" Fail!    Frequency rank > {} or no frequency avaiable: ".format(freqMax), tmpList[0])
+                            print(" Fail!    Frequency rank > {} or no frequency available: ".format(freqMax), tmpList[0])
             except Exception as e:
                 print(" Fail!    ", term_list[j][1], e)
                 historyError.append(term_list[j][1])
