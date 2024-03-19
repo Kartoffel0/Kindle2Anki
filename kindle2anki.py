@@ -400,7 +400,7 @@ def pickBook():
     global book
     onlyNew = False
     manualMode = False
-    addCard = False
+    manualAdd = []
     print("\n Words:\t\tTotal number of words from that book on Kindle's database\n Available:\tTotal amount of those words not yet processed by this script/found on your defined Anki Deck/Collection\n New:\t\tTotal amount of those words that were added since the indicated 'last mined from' date")
     print("\n | ID\t| WORDS\t\t| AVAILABLE\t| NEW \t(YY/MM/DD) | BOOK NAME")
     for i in range(len(book_list)):
@@ -411,12 +411,13 @@ def pickBook():
     bookName = book_list[int(input("\n Enter the ID of the book to mine from:\n "))]
     book = dict_DBBooks[bookName]
     numCards = int(input("\n Enter the number of cards to be added:\n You can also enter 0 to add all available, -1 to mine from the new words only or -3 to choose which cards will be added:\n "))
+    skipBelow = int(input("\n Enter the minimum frequency rank to be added, any cards with a rank below that will be skiped on this run. Enter 0 to add all available cards:\n "))
     if numCards == 0:
         numCards = 99999
     if numCards == -3:
         numCards = 99999
         manualMode = True
-        print("\n When prompted enter 'enter' or 0 to add a card to anki, enter anything else to not add it!\n All cards shown, including not added ones, will be added to the list of processed words!\n ")
+        print("\n When prompted, enter 'enter' or 0 to add a card to anki, enter anything else to not add it!\n All cards shown, including not added ones, will be added to the list of processed words!\n ")
     if numCards == -1:
         onlyNew = True
         numCards = int(input("\n Enter how many of the new words you want to mine, or 0 to add all available:\n "))
@@ -454,6 +455,8 @@ def pickBook():
                             continue
                     if len(freqs) == 0:
                         freqs.append(123456789)
+                    if int(min(freqs)) < skipBelow:
+                        continue
                     if cntCards < numCards:
                         if subFreq:
                             entries = []
@@ -512,21 +515,20 @@ def pickBook():
                                     print("="*32)
                                     cardRating = input("\n Add the card?[y/n/stop] ")
                                     if cardRating == "" or cardRating == "y" or cardRating == "0":
-                                        addCard = True
+                                        card = newCard(config, args)
+                                        manualAdd.append([card, entries[0][0]])
+                                        print(f" Card added to queue:  【{args['term']} | {args['reading']}】\n")
                                     elif cardRating == "stop":
+                                        print(' Adding queued cards...\n')
+                                        for c in manualAdd:
+                                            invoke(c[0], c[1])
                                         break
                                     else:
-                                        addCard = False
                                         print(" Skipped!")
-                                else:
-                                    addCard = True
 
-                                if addCard:
+                                if not manualMode:
                                     card = newCard(config, args)
-                                    if manualMode: 
-                                        invoke(card, entries[0][0], manual=True)
-                                    else:
-                                        invoke(card, entries[0][0])
+                                    invoke(card, entries[0][0])
                                 
                                 history.append(term_list[j][1])
                         else:
