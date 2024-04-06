@@ -225,9 +225,9 @@ def getCards():
     global ankiCardIDs
     reqId = {"action": "findCards", "version": 6, "params": {"query": ""}}
     if config["scope"] == "deck":
-        reqId['params']['query'] = f'deck:{config["deckName"]}'
+        reqId['params']['query'] = f'deck:{config["deckName"]} note:{config["cardType"]}'
     else:
-        reqId['params']['query'] = 'deck:_*'
+        reqId['params']['query'] = f'deck:_* note:{config["cardType"]}'
     requestJson = json.dumps(reqId).encode('utf-8')
     response = json.load(urllib.request.urlopen(urllib.request.Request('http://localhost:8765', requestJson)))
     if response["error"] is None:
