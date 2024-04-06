@@ -85,15 +85,28 @@ def add_freqList(freqN):
     for i in fileNames:
         data = json.load(open("app_files/freq/{}/{}".format(freqN, i), encoding="utf-8"))
         for j in data:
+            frequency = 0
             if type(j[2]) is dict:
                 if "frequency" in j[2]:
-                    freqlist[j[0]] = j[2]["frequency"]
+                    if type(j[2]["frequency"]) is dict:
+                        frequency = j[2]["frequency"]["value"]
+                    else:
+                        frequency = j[2]["frequency"]
+                elif "value" in j[2]:
+                    frequency = j[2]["value"]
             else:
                 if re.search("/", str(j[2])):
-                    freqlist[j[0]] = int(j[2].split("/")[0])
+                    frequency = int(j[2].split("/")[0])
                 else:
-                    freqlist[j[0]] = j[2]
+                    frequency = j[2]
+
+            if j[0] in freqlist:
+                if frequency > freqlist[j[0]]:
+                    freqlist[j[0]] = frequency
+            else:
+                freqlist[j[0]] = frequency
     return freqlist
+
 
 def checkConfig(configDict):
     queries = [
@@ -126,9 +139,9 @@ if config["first_run"] == 1:
     for i in range(dict_Num):
         with zipfile.ZipFile("{}".format(input("\n Enter the filename for your {}° dictionary:\n ".format(i+1))), 'r') as zip_ref:
             zip_ref.extractall("app_files/{}".format(i))
-        dict = add_dict(i)
-        config["dict_Names"].append(dict[0])
-        dicts.append(dict[1])
+        tmpDict = add_dict(i)
+        config["dict_Names"].append(tmpDict[0])
+        dicts.append(tmpDict[1])
         shutil.rmtree("app_files/{}".format(i), ignore_errors=True)
     freqNum = int(input("\n This script don't support multi frequency per word frequency lists,\n make sure the frequency list you'll add has only one frequency per word\n\n Please inform how many frequency lists you want to add:\n "))
     for j in range(freqNum):
